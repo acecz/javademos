@@ -36,7 +36,7 @@ public class AuthFilter implements Filter {
 			if (queryParams != null) {
 				strBackUrl = request.getRequestURL() + "?" + request.getQueryString();
 			}
-			log.error("REQUEST_URL=" + strBackUrl);
+			log.debug("REQUEST_URL=" + strBackUrl);
 		}
 	}
 

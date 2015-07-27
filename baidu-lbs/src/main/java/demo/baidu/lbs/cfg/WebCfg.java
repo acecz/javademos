@@ -19,21 +19,20 @@ public class WebCfg implements AppConst {
 	private static WebCfg getInstance() {
 		if (instance == null) {
 			synchronized (WebCfg.class) {
-				Properties prop = null;
 				if (instance == null) {
 					instance = new WebCfg();
 					InputStream inputStream = null;
 					String propFileName = "webapp.properties";
 					try {
-						prop = new Properties();
+						instance.prop = new Properties();
 						inputStream = WebCfg.class.getClassLoader().getResourceAsStream(propFileName);
-						prop.load(inputStream);
+						instance.prop.load(inputStream);
 						inputStream.close();
 					} catch (Exception e) {
 						throw new RuntimeException("read property file '" + propFileName + "'error!", e);
 					}
 				}
-				log.info("WEB-APP-CFG:" + prop);
+				log.info("WEB-APP-CFG:" + instance.prop);
 			}
 		}
 		return instance;
