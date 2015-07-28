@@ -97,6 +97,7 @@ public class Jersey1ClientUtil {
 				if (client == null) {
 					ClientConfig cc = new DefaultClientConfig();
 					cc.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, Boolean.TRUE);
+					cc.getClasses().add(JavascriptReaderPrivoder.class);
 					client = Client.create(cc);
 					int connTimeout = 10000;
 					client.setConnectTimeout(connTimeout / 5);

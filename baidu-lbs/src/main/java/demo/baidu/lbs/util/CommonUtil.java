@@ -24,6 +24,10 @@ public class CommonUtil {
 		return new String(hexChars);
 	}
 
+	public static boolean isNotBlank(String src) {
+		return !(src == null || src.trim().length() == 0);
+	}
+
 	public static byte[] hexToBytes(String hexStr) {
 		int len = hexStr.length();
 		byte[] data = new byte[len / 2];

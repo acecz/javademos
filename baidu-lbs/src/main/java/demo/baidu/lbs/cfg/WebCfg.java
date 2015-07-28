@@ -12,6 +12,7 @@ import demo.baidu.lbs.web.filter.AuthFilter;
 public class WebCfg implements AppConst {
 	private static final Logger log = Logger.getLogger(AuthFilter.class);
 	Properties prop = null;
+	private String baiduAk;
 	private static WebCfg instance;
 	private WebCfg() {
 	}
@@ -27,6 +28,7 @@ public class WebCfg implements AppConst {
 						instance.prop = new Properties();
 						inputStream = WebCfg.class.getClassLoader().getResourceAsStream(propFileName);
 						instance.prop.load(inputStream);
+						instance.baiduAk = instance.prop.getProperty("baidu.ak");
 						inputStream.close();
 					} catch (Exception e) {
 						throw new RuntimeException("read property file '" + propFileName + "'error!", e);
@@ -50,4 +52,7 @@ public class WebCfg implements AppConst {
 		return rtnMap;
 	}
 
+	public static String baiduAk() {
+		return getInstance().baiduAk;
+	}
 }

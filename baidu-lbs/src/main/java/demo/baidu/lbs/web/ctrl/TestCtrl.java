@@ -1,6 +1,7 @@
 package demo.baidu.lbs.web.ctrl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -12,6 +13,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import demo.baidu.lbs.cfg.WebCfg;
+import demo.baidu.lbs.pojo.BasePointInfo;
+import demo.baidu.lbs.pojo.DrivingSpecQueryReq;
+import demo.baidu.lbs.pojo.PathInfo;
+import demo.baidu.lbs.util.BaiduLBSWebSvrUtil;
 
 @Path(value = "test")
 public class TestCtrl {
@@ -42,4 +47,11 @@ public class TestCtrl {
 		return WebCfg.webCfg();
 	}
 
+	@POST
+	@Path("findPath")
+	@Consumes({ MediaType.APPLICATION_JSON })
+	@Produces({ MediaType.APPLICATION_JSON })
+	public PathInfo findPath(List<BasePointInfo> points) {
+		return BaiduLBSWebSvrUtil.findPathDrivingSpec(new DrivingSpecQueryReq(points.get(0), points.get(1)));
+	}
 }

@@ -35,7 +35,7 @@ public class JsonUtil {
 		return null;
 	}
 
-	private static ObjectMapper getMapper() {
+	public static ObjectMapper getMapper() {
 		if (mapper == null) {
 			synchronized (JsonUtil.class) {
 				if (mapper == null) {
