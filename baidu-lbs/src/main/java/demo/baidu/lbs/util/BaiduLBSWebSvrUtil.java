@@ -19,9 +19,12 @@ public class BaiduLBSWebSvrUtil {
 		if (map == null) {
 			return;
 		}
-		map.forEach((k, v) -> {
-			req.addPathParamMap(k, v);
-		});
+		for (String key : map.keySet()) {
+			req.addPathParamMap(key, map.get(key));
+		}
+		// map.forEach((k, v) -> {
+		// req.addPathParamMap(k, v);
+		// });
 	}
 
 }

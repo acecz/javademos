@@ -46,9 +46,12 @@ public class WebCfg implements AppConst {
 		if (prop == null) {
 			return rtnMap;
 		}
-		prop.keySet().forEach(k -> {
-			rtnMap.put(k.toString(), prop.getOrDefault(k, "").toString());
-		});
+		for (Object key : prop.keySet()) {
+			rtnMap.put(key.toString(), prop.getProperty(key.toString()));
+		}
+		// prop.keySet().forEach(k -> {
+		// rtnMap.put(k.toString(), prop.getOrDefault(k, "").toString());
+		// });
 		return rtnMap;
 	}
 
