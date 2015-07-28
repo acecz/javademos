@@ -1,0 +1,6 @@
+/bin/
+/build/
+.classpath
+.gradle
+/baidu-lbs/build/
+.project
