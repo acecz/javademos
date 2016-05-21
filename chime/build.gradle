@@ -1,6 +1,5 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'jar'
 
 sourceCompatibility = 1.7
 repositories {  
@@ -8,5 +7,6 @@ repositories {
 }
 
 dependencies{
-	//compile 'com.sun.jersey:jersey-server:1.19'
+	// http://mvnrepository.com/artifact/com.github.wendykierp/JTransforms
+	compile group: 'com.github.wendykierp', name: 'JTransforms', version: '3.1'
 }
