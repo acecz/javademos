@@ -1,18 +1,10 @@
-package cz.test.chime.other;
+package cz.test.chime.myfft;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Arrays;
+public class ChimeAnalysisUtil {
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
+}
 
-public class GoertzelTestOnDialingTone {
+class GoertzelTestOnDialingTone {
 	static public class Goertzel {
 		private float sampling_rate;
 		private float target_frequency;
@@ -127,19 +119,13 @@ public class GoertzelTestOnDialingTone {
 		 * End of Goertzel-specific code, the remainder is test code.
 		 */
 		public double test() {
-
 			int index;
-
 			double magnitudeSquared;
 			double magnitude;
 			double real;
 			double imag;
 			double[] parts = new double[2];
 
-			// System.out.println("Freq= " + frequency);
-			// generate(frequency);
-
-			/* Process the samples. */
 			for (index = 0; index < n; index++) {
 				processSample(testData[index]);
 			}
@@ -160,74 +146,4 @@ public class GoertzelTestOnDialingTone {
 		// ...... //
 
 	}
-
-	public static void main(String[] args) throws IOException, UnsupportedAudioFileException {
-
-		final File audioFile = new File("/Users/cz/Desktop/snd2fftw_win/testwav/test05", "AudioRecord.wav");
-		final AudioInputStream inputStream = AudioSystem.getAudioInputStream(audioFile);
-		if (inputStream.getFormat().getFrameSize() != 2)
-			throw new IllegalArgumentException("Must be 2 bytes per frame");
-		if (inputStream.getFormat().isBigEndian())
-			throw new IllegalArgumentException("Must be little endian");
-		if (inputStream.getFormat().getEncoding() != AudioFormat.Encoding.PCM_SIGNED)
-			throw new IllegalArgumentException("Must be PCM_SIGNED ");
-
-		System.out.println("Sample size in bits   : " + inputStream.getFormat().getSampleSizeInBits());
-		System.out.println("Encoding              : " + inputStream.getFormat().getEncoding());
-		float sampleRate = (int) inputStream.getFormat().getSampleRate();
-		System.out.println("Sample rate           : " + sampleRate);
-		System.out.println("Number of channels    : " + inputStream.getFormat().getChannels());
-		System.out.println("Frame rate            : " + inputStream.getFormat().getFrameRate());
-		System.out.println("Big-endian            : " + inputStream.getFormat().isBigEndian());
-
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		final byte[] buff = new byte[1024];
-		for (int read = 0; (read = inputStream.read(buff)) != -1;) {
-			out.write(buff, 0, read);
-		}
-		out.close();
-		final byte[] audioBytes = out.toByteArray();
-		System.out.println(audioBytes.length);
-
-		double[] data_ = new double[audioBytes.length / 2048];
-		for (int i = 0, j = 0; j < data_.length; i += 2) {
-			// Little endian PCM SIGNED conversion
-			data_[j++] = ((audioBytes[i] & 0xff) | (audioBytes[i + 1] << 8)) / 32768.0;
-		}
-		System.out.println(Arrays.toString(data_));
-		BufferedWriter br = new BufferedWriter(new FileWriter("output.txt"));
-
-		double max = -1;
-		double maxFreq = -1;
-
-		double maxScanFreq = 5000;
-
-		System.out.println("Scanning from 0 to " + maxScanFreq + " Hz");
-		for (int k = 0; k < maxScanFreq; k++) {
-			double ampl = -1;
-
-			System.out.println("searching for " + k + "Hz");
-			Goertzel test = new Goertzel(sampleRate, (float) k, data_, false);
-			test.initGoertzel();
-
-			// Run the Algorithm
-			ampl = test.test();
-
-			// Pitches detection
-			if (ampl > 800000) {
-				br.write("New pitch at " + k + " of ampl " + ampl);
-				br.newLine();
-			}
-
-			if (ampl > max) {
-				max = ampl;
-				maxFreq = k;
-			}
-
-		}
-		System.out.println("Amplitude: " + max + " max at " + maxFreq + "Hz");
-		br.close();
-
-	}
-
 }

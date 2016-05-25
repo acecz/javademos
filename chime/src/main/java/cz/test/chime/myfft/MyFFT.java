@@ -19,7 +19,7 @@ public class MyFFT {
 	}
 
 	private static void readWav() throws Exception {
-		File file = new File("/Users/cz/Desktop/testwav/test05", "AudioRecord.wav");
+		File file = new File("/Users/cz/Desktop/snd2fftw_win/testwav/test05", "AudioRecord.wav");
 		AudioInputStream ais = AudioSystem.getAudioInputStream(file);
 		AudioFormat format = ais.getFormat();
 		System.out.println(format);
