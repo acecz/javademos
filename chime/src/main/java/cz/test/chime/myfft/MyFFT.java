@@ -1,7 +1,6 @@
 package cz.test.chime.myfft;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Map;
 
 import javax.sound.sampled.AudioFormat;
@@ -43,7 +42,7 @@ public class MyFFT {
 		// System.out.println(Arrays.toString(sampleDate));
 		DoubleFFT_1D transfer = new DoubleFFT_1D(len / 2);
 		transfer.complexForward(sampleDate);
-		System.out.println(Arrays.toString(sampleDate));
+		// System.out.println(Arrays.toString(sampleDate));
 		return null;
 	}
 
