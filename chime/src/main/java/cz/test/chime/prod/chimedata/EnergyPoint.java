@@ -1,10 +1,10 @@
-package cz.test.chime.xuechen;
+package cz.test.chime.prod.chimedata;
 
 public class EnergyPoint {
+
 	public final double time;
 	public final double freq;
 	public final double energy;
-	public final double db;
 	private double interval;
 
 	public EnergyPoint(double time, double freq, double energy) {
@@ -12,23 +12,28 @@ public class EnergyPoint {
 		this.time = time;
 		this.freq = freq;
 		this.energy = energy;
-		this.db = eng2db(this.energy);
-	}
-
-	private double eng2db(double eng) {
-		return 10 * Math.log10(eng * 5E4);
 	}
 
 	public double getInterval() {
 		return interval;
 	}
 
+	public double getDB() {
+		if (energy <= 0) {
+			return 0;
+		}
+		return calcDB(energy);
+	}
+
+	public static double calcDB(double energy) {
+		// the 5E4 value:refer to
+		// http://www.sengpielaudio.com/calculator-soundvalues.htm
+		// the reference sound pressure p0 = 20 µPa = 2 × 10−5 Pa.
+		return 10 * Math.log10(energy * 5E4);
+	}
+
 	public void setInterval(double interval) {
 		this.interval = interval;
 	}
 
-	public Object getDB() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
