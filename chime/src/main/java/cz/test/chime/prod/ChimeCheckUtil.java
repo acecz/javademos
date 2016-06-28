@@ -34,20 +34,23 @@ public class ChimeCheckUtil {
 	public static final String KEY_ENERGY = "energy";
 	public static final String KEY_RESULT = "result";
 
-	public static void main(String[] args) throws Exception {
-		String[] future = { "FREQUENCY750" };
-		removeOldCsv();
-		// System.out.println(validate(new File(fileDir, "3dft.dat"), future));
-		System.out.println(validateWav(new File(fileDir, "AudioRecord-2.wav"), future));
-	}
+	// public static void main(String[] args) throws Exception {
+	// String[] future = { "FREQUENCY750" };
+	// removeOldCsv();
+	// // System.out.println(validate(new File(fileDir, "3dft.dat"), future));
+	// Map<String, String> realFeature = validateWav(new File(fileDir,
+	// "AudioRecord-2.wav"), future);
+	// System.out.println(realFeature);
+	// }
 
-	private static void removeOldCsv() {
-		File[] csvs = new File(fileDir).listFiles(f -> f.getName().endsWith(".csv"));
-		for (File file : csvs) {
-			file.delete();
-		}
-
-	}
+	// private static void removeOldCsv() {
+	// File[] csvs = new File(fileDir).listFiles(f ->
+	// f.getName().endsWith(".csv"));
+	// for (File file : csvs) {
+	// file.delete();
+	// }
+	//
+	// }
 
 	public static Map<String, String> validate(File file, String... features) throws IOException {
 		ChimeFeature feature = new ChimeFeature(features);
@@ -64,6 +67,7 @@ public class ChimeCheckUtil {
 		writeLogFile(file.getAbsolutePath(), freqTimeAmpMap);
 		ChimeFreqStatistic efs = parseData(freqTimeAmpMap);
 		writeLogFile(file.getAbsolutePath(), efs.getFilteredEps());
+		new File(file.getName() + "." + efs.freq).createNewFile();
 		return feature.validateData(efs);
 	}
 

@@ -17,8 +17,7 @@ public class Logger {
 
 	public void error(String string, IOException e) {
 		System.err.println(string);
-		System.out.println(e.toString());
-
+		e.printStackTrace();
 	}
 
 	public boolean isDebugEnabled() {
@@ -37,11 +36,16 @@ public class Logger {
 
 	public void error(String string, Exception e) {
 		System.err.println(string);
-		System.out.println(e.toString());
+		e.printStackTrace();
 	}
 
 	public void warn(String string) {
 		System.out.println(string);
+	}
+
+	public void error(String string) {
+		System.err.println(string);
+
 	}
 
 }

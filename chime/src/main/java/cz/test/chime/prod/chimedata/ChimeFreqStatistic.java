@@ -7,8 +7,6 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import cz.test.chime.prod.ChimeCheckUtil;
-
 public class ChimeFreqStatistic {
 	public static final ChimeFreqStatistic EMPTY_CHIME_FREQ_STATISTIC = new ChimeFreqStatistic();
 	private final static Logger log = Logger.getLogger(ChimeFreqStatistic.class);
@@ -64,9 +62,11 @@ public class ChimeFreqStatistic {
 			tmpMaxEnergyTime = 0;
 			tmpMaxEnergy = 0;
 		}
-		if (Float.valueOf(freq).intValue() == 750 || Float.valueOf(freq).intValue() == 2000) {
-			ChimeCheckUtil.writeLogFile(ChimeCheckUtil.fileDir + "/" + freq + "-mid.csv", sampleEps);
-		}
+		// if (Float.valueOf(freq).intValue() == 750 ||
+		// Float.valueOf(freq).intValue() == 2000) {
+		// ChimeCheckUtil.writeLogFile(ChimeCheckUtil.fileDir + "/" + freq +
+		// "-mid.csv", sampleEps);
+		// }
 		double engThreshold = 1000000; // unreachable threshold for empty list
 		if (cnt > 0) {
 			// hard code,the energy be saved must high the average energy
