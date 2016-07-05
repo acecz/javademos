@@ -36,4 +36,11 @@ public class EnergyPoint {
 		this.interval = interval;
 	}
 
+	public static void main(String[] args) {
+		int exp = 1;
+		for (double i = 0; i < 200; i = 0.001 * (1 << exp++)) {
+			System.out.printf("%8.3f->%.3f,", i, calcDB(i));
+		}
+	}
+
 }
