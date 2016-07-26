@@ -1,0 +1,13 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+repositories {  
+    mavenCentral()
+}
+
+dependencies{
+	// http://mvnrepository.com/artifact/com.github.wendykierp/JTransforms
+	compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
+}
