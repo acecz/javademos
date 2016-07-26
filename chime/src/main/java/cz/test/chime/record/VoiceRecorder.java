@@ -29,7 +29,7 @@ public class VoiceRecorder {
 	private static Recorder recorder;
 
 	public static void startRecorder(long maxTime) throws Exception {
-		String fileName = Thread.currentThread().getName() + ".wav";
+		String fileName = "/Users/cz/Desktop/sample/recs/" + Thread.currentThread().getName() + ".wav";
 		log.info(String.format("%s %s %d", "pre queue", fileName, System.currentTimeMillis()));
 		recQueue.put(new File(fileName));
 		log.info(String.format("%s %s %d", "after queue", fileName, System.currentTimeMillis()));
@@ -89,26 +89,7 @@ public class VoiceRecorder {
 	}
 
 	public static void main(String[] args) throws Exception {
-		for (int i = 0; i < 5; i++) {
-			final int t = i;
-			new Thread() {
-				public void run() {
-					try {
-						String tn = "t-" + t;
-						this.setName(tn);
-						log.info(String.format("%s %s %d", "Start loop", tn, System.currentTimeMillis()));
-						VoiceRecorder.startRecorder(10000);
-						File f = VoiceRecorder.getRecorderFile((5 + 2 * t) * 1000);
-						VoiceRecorder.getRecorderFile(2000);
-						String name = f == null ? "NULL" : f.getName();
-						log.info("****************** GET " + name);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				};
-			}.start();
-
-		}
+		VoiceRecorder.startRecorder(3000);
 		// executor.shutdown();
 	}
 

@@ -46,7 +46,8 @@ public class AudioMatchResult {
 	}
 
 	public String dbgStr() {
-		return String.format("songName=%s,matchTimes=%d,offset=%d,sampleHashs=%d,confidenceRatio=%f", songName,
+		String[] namep = songName.split("/");
+		return String.format("%s,   matchTimes=%d,offset=%d,sampleHashs=%d,confidenceRatio=%f", namep[namep.length - 1],
 				matchTimes, offset, sampleHashs, sampleHashs == 0 ? 0D : (matchTimes * 1D / sampleHashs));
 	}
 

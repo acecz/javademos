@@ -32,6 +32,7 @@ public class AudioCheckUtil {
 	}
 
 	public static AudioData audioFingerprint(File file) throws Exception {
+		// log.debug("FP SONG:" + file.getName());
 		AudioData audioData = analysisWav(file);
 		audioData.makeFingerprintOfAudio();
 		return audioData;
@@ -56,7 +57,7 @@ public class AudioCheckUtil {
 				for (int hzstep = 0; hzstep < maxHzStep; hzstep += 1) {
 					GoertzelChimeAnalysis ca = new GoertzelChimeAnalysis(sampleRate, hzstep * freqIntv,
 							windowDataMAp.get(t));
-					ad.ampls[t][hzstep] = AudioData.calcDB(ca.calAmpl());
+					ad.ampls[t][hzstep] = ca.calAmpl();
 				}
 			}
 			return ad;

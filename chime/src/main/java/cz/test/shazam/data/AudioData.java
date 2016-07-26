@@ -27,7 +27,7 @@ public class AudioData implements AudioCheckCfg {
 
 	public Map<Integer, String> makeFingerprintOfAudio() {
 		Map<Integer, String> audioHashs = new TreeMap<>();
-		// make a hash for very time window
+		// make a hash for every time window
 		for (int i = 0; i < ampls.length; i++) {
 			String hash = makeTimeHash(ampls[i]);
 			hashs[i] = hash;
@@ -37,7 +37,7 @@ public class AudioData implements AudioCheckCfg {
 	}
 
 	/**
-	 * the logic of making hash: use the biggest 4 {frequency,energy}
+	 * the logic of making hash: use a few biggest {frequency,energy}
 	 * pairs,combine them to a byte array:frequencyStep-(int value of
 	 * energy/nextPairEnergy)-...,then use Base64 to encode this byte array
 	 */
@@ -50,10 +50,13 @@ public class AudioData implements AudioCheckCfg {
 		Entry<Double, Integer> bigger = map.pollLastEntry();
 		Entry<Double, Integer> smaller;
 		for (int i = 0; i < HASH_FREQ_ENERGY_PAIR_CNT; i++) {
+			if (bigger.getKey() < ENERGY_THRESHOLD_MIN) {
+				break;
+			}
 			smaller = map.pollLastEntry();
 			// since dB is a logarithm value,use an ENERGY_RATIO_MAGNIFICATION
-			// to increase sensitivity
-			int engRate = Double.valueOf(bigger.getKey() * ENERGY_RATIO_MAGNIFICATION / smaller.getKey()).intValue();
+			// to increase sensitivity //TODO or use square root ?
+			int engRate = Double.valueOf(Math.sqrt(bigger.getKey() / smaller.getKey())).intValue();
 			bb.putInt(engRate);
 			bb.putInt(engRate);
 			bigger = smaller;

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class TestBatch {
-	static String dir = "/Users/cz/Desktop/chimes";
+	static String dir = "/Users/cz/workspace/tmp/SoundCheck_log";
 	static String[] future = { "FREQUENCY1500GV1000LV1400" };
 
 	public static void main(String[] args) throws Exception {

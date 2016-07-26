@@ -32,11 +32,21 @@ public class EnergyPoint {
 		return 10 * Math.log10(energy * 5E4);
 	}
 
+	static double dB2Energy(double db) {
+		return Math.pow(10, db / 10) * 2E-5;
+	}
+
 	public void setInterval(double interval) {
 		this.interval = interval;
 	}
 
 	public static void main(String[] args) {
+		double db = 50d;
+		double energy = dB2Energy(db);
+		double bdb = calcDB(energy);
+
+		System.out.printf("%f\t%f\t%f", db, energy, bdb);
+
 		int exp = 1;
 		for (double i = 0; i < 200; i = 0.001 * (1 << exp++)) {
 			System.out.printf("%8.3f->%.3f,", i, calcDB(i));
