@@ -50,14 +50,14 @@ public class ChimeFreqStatistic {
 				tmpMaxEnergy = energy;
 			}
 			// check the max energy for every 4*16ms section
-			if (cnt % 4 == 0 && tmpMaxEnergy > 0) {
+			if (cnt % 3 == 0 && tmpMaxEnergy > 0) {
 				sampleEps.add(new EnergyPoint(tmpMaxEnergyTime, freq, tmpMaxEnergy));
 				tmpMaxEnergyTime = 0;
 				tmpMaxEnergy = 0;
 			}
 		}
 		// last loop
-		if (cnt % 8 > 0 && tmpMaxEnergy > 0) {
+		if (cnt % 3 > 0 && tmpMaxEnergy > 0) {
 			sampleEps.add(new EnergyPoint(tmpMaxEnergyTime, freq, tmpMaxEnergy));
 			tmpMaxEnergyTime = 0;
 			tmpMaxEnergy = 0;

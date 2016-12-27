@@ -1,7 +1,5 @@
 package org.apache.log4j;
 
-import java.io.IOException;
-
 public class Logger {
 
 	private static Logger logger = new Logger();
@@ -13,11 +11,6 @@ public class Logger {
 	public void info(String string) {
 		System.out.println(string);
 
-	}
-
-	public void error(String string, IOException e) {
-		System.err.println(string);
-		e.printStackTrace();
 	}
 
 	public boolean isDebugEnabled() {

@@ -1,6 +1,5 @@
 package cz.test.chime.prod.chimedata;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,17 +32,18 @@ public class ChimeFeature {
 	}
 
 	public ChimeFeature(String[] features) {
-		log.info("Features:" + Arrays.asList(features));
+		// log.info("Features:" + Arrays.asList(features));
 		this.features = features;
 		parseFeature();
-		if (log.isDebugEnabled()) {
-			StringBuilder logSb = new StringBuilder("ChimeFeature:checkTimes=").append(checkTimes)
-					.append(",checkInterval=").append(checkInterval).append(",checkFrequency=").append(checkFrequency)
-					.append(",checkEnergy=").append(checkDB).append(",expTimes=").append(Arrays.toString(expTimes))
-					.append(",expInterval=").append(Arrays.toString(expInterval)).append(",expFrequency=")
-					.append(Arrays.toString(expFrequency)).append(",expEnergy=").append(Arrays.toString(expDB));
-			log.debug(logSb.toString());
-		}
+		// if (log.isDebugEnabled()) {
+		// StringBuilder logSb = new
+		// StringBuilder("ChimeFeature:checkTimes=").append(checkTimes)
+		// .append(",checkInterval=").append(checkInterval).append(",checkFrequency=").append(checkFrequency)
+		// .append(",checkEnergy=").append(checkDB).append(",expTimes=").append(Arrays.toString(expTimes))
+		// .append(",expInterval=").append(Arrays.toString(expInterval)).append(",expFrequency=")
+		// .append(Arrays.toString(expFrequency)).append(",expEnergy=").append(Arrays.toString(expDB));
+		// log.debug(logSb.toString());
+		// }
 	}
 
 	public Map<String, String> validateData(ChimeFreqStatistic cfs) {
@@ -234,6 +234,11 @@ public class ChimeFeature {
 			int vv1 = Integer.parseInt(fvs[1]);
 			return new int[] { baseval - vv1, baseval, baseval };
 		}
+		return null;
+	}
+
+	public Map<String, String> validateData(ChimeFreqStatisticEh efs) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

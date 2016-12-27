@@ -1,22 +1,23 @@
 package cz.test.chime.prod;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class TestBatch {
-	static String dir = "/Users/cz/workspace/tmp/SoundCheck_log";
-	static String[] future = { "FREQUENCY1500GV1000LV1400" };
+	static String dir = "/Users/cz/Desktop/wav";
+	static String[] future = { "TIMES3" };
 
 	public static void main(String[] args) throws Exception {
-		Set<File> files = new HashSet<>();
+		Map<String, File> files = new TreeMap<>();
 		loadWav(new File(dir), files);
-		for (File file : files) {
-			ChimeCheckUtil.validateWav(file, future);
+		for (File file : files.values()) {
+			ChimeCheckUtil.validateWavEh(file, future);
 		}
 	}
 
-	private static void loadWav(File file, Set<File> files) {
+	private static void loadWav(File file, Map<String, File> files) throws IOException {
 		if (file.isDirectory()) {
 			File[] fs = file.listFiles();
 			for (File f : fs) {
@@ -24,7 +25,7 @@ public class TestBatch {
 			}
 		} else {
 			if (file.getName().toLowerCase().endsWith("wav")) {
-				files.add(file);
+				files.put(file.getCanonicalPath(), file);
 			}
 		}
 

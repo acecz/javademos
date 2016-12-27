@@ -19,7 +19,9 @@ import org.apache.log4j.Logger;
 
 import cz.test.chime.prod.chimedata.ChimeFeature;
 import cz.test.chime.prod.chimedata.ChimeFreqStatistic;
+import cz.test.chime.prod.chimedata.ChimeFreqStatisticEh;
 import cz.test.chime.prod.chimedata.EnergyPoint;
+import cz.test.chime.prod.chimedata.PulseData;
 
 public class ChimeCheckUtil {
 	private final static Logger log = Logger.getLogger(ChimeCheckUtil.class);
@@ -51,6 +53,7 @@ public class ChimeCheckUtil {
 	// }
 
 	public static Map<String, String> validate(File file, String... features) throws IOException {
+		log.debug("check file: " + file.getName());
 		ChimeFeature feature = new ChimeFeature(features);
 		Map<Float, Map<Integer, Double>> freqTimeAmpMap = readOrigData(file);
 		writeLogFile(file.getAbsolutePath(), freqTimeAmpMap);
@@ -60,12 +63,25 @@ public class ChimeCheckUtil {
 	}
 
 	public static Map<String, String> validateWav(File file, String... features) throws Exception {
+		log.debug("check file: " + file.getName());
 		ChimeFeature feature = new ChimeFeature(features);
 		Map<Float, Map<Integer, Double>> freqTimeAmpMap = analysisWav(file);
 		writeLogFile(file.getAbsolutePath(), freqTimeAmpMap);
 		ChimeFreqStatistic efs = parseData(freqTimeAmpMap);
 		writeLogFile(file.getAbsolutePath(), efs.getFilteredEps());
 		new File(file.getName() + "." + efs.freq).createNewFile();
+		return feature.validateData(efs);
+	}
+
+	public static Map<String, String> validateWavEh(File file, String... features) throws Exception {
+		log.debug("\ncheck file: " + file.getName());
+		ChimeFeature feature = new ChimeFeature(features);
+		Map<Float, Map<Integer, Double>> freqTimeAmpMap = analysisWav(file);
+		writeLogFile(file.getAbsolutePath(), freqTimeAmpMap);
+		ChimeFreqStatisticEh efs = parseDataEh(freqTimeAmpMap);
+		writeLogFileEh(file.getAbsolutePath(), efs.getPulseList());
+		new File(file.getName() + "." + efs.freq).createNewFile();
+		log.debug(efs.dbgStr());
 		return feature.validateData(efs);
 	}
 
@@ -78,6 +94,29 @@ public class ChimeCheckUtil {
 			for (EnergyPoint ep : filteredEps) {
 				fw.write(String.format("%f,%f,%d,%f,%f\n", ep.freq, ep.time,
 						Double.valueOf(ep.getInterval()).intValue(), ep.energy, ep.getDB()));
+			}
+		} catch (IOException e) {
+			log.error("write log error!", e);
+			// ignore
+		} finally {
+			try {
+				fw.close();
+			} catch (Exception e) {
+				log.error("close resource error!", e);
+			}
+		}
+	}
+
+	public static void writeLogFileEh(String filePath, List<PulseData> pulses) {
+		String flie = filePath.substring(0, filePath.lastIndexOf(".")) + "-result.csv";
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(new File(flie));
+			fw.write("index,frequency(Hz),start(ms),end(ms),interval(ms),maxEnergy,volume(dB)\n");
+			int idx = 1;
+			for (PulseData pd : pulses) {
+				fw.write(String.format("%d,%d,%d,%d,%d,%f,%f\n", idx++, pd.getFreq(), pd.getStartTime(),
+						pd.getEndTime(), pd.getCadence(), pd.getMaxEnergy(), EnergyPoint.calcDB(pd.getMaxEnergy())));
 			}
 		} catch (IOException e) {
 			log.error("write log error!", e);
@@ -171,6 +210,19 @@ public class ChimeCheckUtil {
 			ChimeFreqStatistic cfs = new ChimeFreqStatistic(freq, freqTimeAmpMap.get(freq));
 			if (cfs.getRelativeSumEnergy() > maxRelativeSumEnergy) {
 				maxRelativeSumEnergy = cfs.getRelativeSumEnergy();
+				maxRelativeSumEnergyStatistics = cfs;
+			}
+		}
+		return maxRelativeSumEnergyStatistics;
+	}
+
+	private static ChimeFreqStatisticEh parseDataEh(Map<Float, Map<Integer, Double>> freqTimeAmpMap) {
+		double maxRelativeSumEnergy = 0;
+		ChimeFreqStatisticEh maxRelativeSumEnergyStatistics = null;
+		for (Float freq : freqTimeAmpMap.keySet()) {
+			ChimeFreqStatisticEh cfs = new ChimeFreqStatisticEh(freq, freqTimeAmpMap.get(freq));
+			if (cfs.getSumEnergy() > maxRelativeSumEnergy) {
+				maxRelativeSumEnergy = cfs.getSumEnergy();
 				maxRelativeSumEnergyStatistics = cfs;
 			}
 		}
