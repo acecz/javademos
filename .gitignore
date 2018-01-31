@@ -1,0 +1,13 @@
+/*
+.*
+
+!/*/src/main/
+
+!.gitignore
+!RELEASE.md
+!*build*.gradle
+!settings.gradle
+*.iml
+*.ipr
+*.iws
+
