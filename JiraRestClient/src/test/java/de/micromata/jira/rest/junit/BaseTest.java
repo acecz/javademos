@@ -16,25 +16,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Junit-Test for JiraRestClient.
- * You need a running Jira-Instance with the TEST_SYSTEM_URL.
- * Best use is the atlassian-plugin-sdk
+ * Junit-Test for JiraRestClient. You need a running Jira-Instance with the TEST_SYSTEM_URL. Best use is the
+ * atlassian-plugin-sdk
  * <p>
- * User: Christian Schulze
- * Email: c.schulze@micromata.de
- * Date: 09.08.2014
+ * User: Christian Schulze Email: c.schulze@micromata.de Date: 09.08.2014
  */
 class BaseTest implements JqlConstants, RestPathConstants {
 
-    static final String CONFIGFILENAME = "config.properties";
+    protected static final String CONFIGFILENAME = "config.properties";
 
-    static final String URL_PARAM = "url";
-    static final String LOGIN_PARAM = "login";
-    static final String PASSWORD_PARAM = "password";
+    protected static final String URL_PARAM = "url";
+    protected static final String LOGIN_PARAM = "login";
+    protected static final String PASSWORD_PARAM = "password";
 
-    static final String USERNAME_TO_SEARCH = "admin";
-    static final String ISSUEKEY_TO_SEARCH = "DEMO-1";
-    static final String PROJECT_TO_SEARCH = "DEMO";
+    protected static final String USERNAME_TO_SEARCH = "admin";
+    protected static final String ISSUEKEY_TO_SEARCH = "MATSUP-1";
+    protected static final String PROJECT_TO_SEARCH = "MATSUP";
 
     String testSystemUrl = "http://localhost:2990/jira";
     String login = "admin";
@@ -53,7 +50,7 @@ class BaseTest implements JqlConstants, RestPathConstants {
     @Before
     public void connect() throws URISyntaxException, IOException, ExecutionException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(100);
-//        ProxyHost proxy = new ProxyHost("proxy", 3128);
+        // ProxyHost proxy = new ProxyHost("proxy", 3128);
         URI uri = new URI(testSystemUrl);
         jiraRestClient = new JiraRestClient(executorService);
         jiraRestClient.connect(uri, login, password);

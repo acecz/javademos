@@ -1,7 +1,7 @@
-/*
 .*
-
-!/*/src/main/
+*/build/*
+*/out/*
+!/*/src/
 
 !.gitignore
 !RELEASE.md

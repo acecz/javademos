@@ -397,8 +397,9 @@ public enum EField {
     /**
      * <i>Attachment Informations</i>
      */
-    ATTACHMENT("attachment", EFieldType.CUSTOM_TYPE);
+    ATTACHMENT("attachment", EFieldType.CUSTOM_TYPE),
 
+    WORKLOG("worklog", EFieldType.CUSTOM_TYPE);
     /**
      * The name of the field.
      */

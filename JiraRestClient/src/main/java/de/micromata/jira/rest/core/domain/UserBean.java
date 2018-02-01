@@ -2,7 +2,7 @@ package de.micromata.jira.rest.core.domain;
 
 import com.google.gson.annotations.Expose;
 
-public class UserBean extends BaseBean{
+public class UserBean extends BaseBean {
 
     @Expose
     private Boolean active;

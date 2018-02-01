@@ -14,7 +14,7 @@ public class WorklogBean {
     @Expose
     private Integer total;
     @Expose
-    private List<Object> worklogs = new ArrayList<>();
+    private List<WorklogItemBean> worklogs = new ArrayList<>();
 
     public Integer getMaxResults() {
         return maxResults;
@@ -40,11 +40,11 @@ public class WorklogBean {
         this.total = total;
     }
 
-    public List<Object> getWorklogs() {
+    public List<WorklogItemBean> getWorklogs() {
         return worklogs;
     }
 
-    public void setWorklogs(List<Object> worklogs) {
+    public void setWorklogs(List<WorklogItemBean> worklogs) {
         this.worklogs = worklogs;
     }
 }
