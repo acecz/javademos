@@ -48,7 +48,7 @@ public class DateParser {
         try {
             return dateFormat.simpleDateFormat.parse(dateString);
         } catch (Exception e) {
-//            e.printStackTrace();
+           e.printStackTrace();
         }
         return null;
     }

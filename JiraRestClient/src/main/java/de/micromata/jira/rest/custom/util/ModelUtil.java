@@ -3,6 +3,7 @@ package de.micromata.jira.rest.custom.util;
 import de.micromata.jira.rest.core.Const;
 import de.micromata.jira.rest.core.domain.IssueBean;
 import de.micromata.jira.rest.core.domain.WorklogItemBean;
+import de.micromata.jira.rest.core.util.DateParser;
 import de.micromata.jira.rest.custom.model.IssueSimplePO;
 import de.micromata.jira.rest.custom.model.WorklogSimplePO;
 
@@ -24,7 +25,7 @@ public class ModelUtil {
         WorklogSimplePO po = new WorklogSimplePO();
         po.setIssueKey(issueKey);
         po.setStartTime(item.getStarted());
-        po.setStartDate(LocalDate.parse(item.getStarted(), Const.LOCAL_DATE_FMT));
+        po.setStartDate(LocalDate.parse(item.getStarted(), Const.YAER2MS_TZ_FMT));
         po.setTimeSpentSeconds(item.getTimeSpentSeconds());
         po.setUserId(item.getAuthor().getName());
         po.setUserName(item.getAuthor().getDisplayName());

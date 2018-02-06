@@ -16,6 +16,7 @@ import de.micromata.jira.rest.core.jql.*;
 import de.micromata.jira.rest.custom.model.IssueSimplePO;
 import de.micromata.jira.rest.custom.model.WorklogSimplePO;
 import de.micromata.jira.rest.custom.util.ModelUtil;
+import de.micromata.jira.rest.custom.util.ReportUtil;
 
 public class SearchClient extends BaseClient {
     protected static final String ISSUEKEY_TO_SEARCH = "MATSUP-1";
@@ -62,6 +63,8 @@ public class SearchClient extends BaseClient {
                 worklogBean.getWorklogs().forEach(item -> worklogs.add(ModelUtil.simpleWorklogItem(issueKey, item)));
             }
         });
+        ReportUtil.issueCsvReport(issueMap);
+        ReportUtil.worklogCsvReport(worklogs);
         System.out.println(issueMap);
         System.out.println(worklogs);
     }
