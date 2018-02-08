@@ -1,18 +1,42 @@
 package de.micromata.jira.rest.custom.model;
 
+import java.time.LocalDate;
+
 import de.micromata.jira.rest.core.Const;
 import de.micromata.jira.rest.core.util.StringUtil;
 
-import java.time.LocalDate;
-
 public class WorklogSimplePO {
     public static final String CSV_HEADER = "IssueKey,UserId,UserName,Date,WorkHours";
+
     private String issueKey;
+
     private String userId;
+
     private String userName;
-    private String startTime;
-    private LocalDate startDate;
-    private Integer timeSpentSeconds;
+
+    private LocalDate workDate;
+
+    private Double timeSpentHours;
+
+    public static WorklogSimplePO createNew(String issueKey, String userId, String userName, LocalDate startDate,
+            Double hours) {
+        WorklogSimplePO newOne = new WorklogSimplePO();
+        newOne.setIssueKey(issueKey);
+        newOne.setUserId(userId);
+        newOne.setUserName(userName);
+        newOne.setWorkDate(startDate);
+        newOne.setTimeSpentHours(hours);
+        return newOne;
+
+    }
+
+    public LocalDate getWorkDate() {
+        return workDate;
+    }
+
+    public void setWorkDate(LocalDate workDate) {
+        this.workDate = workDate;
+    }
 
     public String getIssueKey() {
         return issueKey;
@@ -38,40 +62,23 @@ public class WorklogSimplePO {
         this.userName = userName;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public Double getTimeSpentHours() {
+        return timeSpentHours;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public Integer getTimeSpentSeconds() {
-        return timeSpentSeconds;
-    }
-
-    public void setTimeSpentSeconds(Integer timeSpentSeconds) {
-        this.timeSpentSeconds = timeSpentSeconds;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
+    public void setTimeSpentHours(Double timeSpentHours) {
+        this.timeSpentHours = timeSpentHours;
     }
 
     @Override
     public String toString() {
         return "WorklogSimplePO{" + "issueKey='" + issueKey + '\'' + ", userId='" + userId + '\'' + ", userName='"
-                + userName + '\'' + ", startTime='" + startTime + '\'' + ", startDate=" + startDate
-                + ", timeSpentSeconds=" + timeSpentSeconds + '}';
+                + userName + '\'' + ", workDate='" + workDate + '\'' + ", timeSpentHours=" + timeSpentHours + '}';
     }
 
     public String toCsvString() {
         // public static final String CSV_HEADER="IssueKey,UserId,UserName,Date,WorkHours";
         return String.format("%s,%s,%s,%s,%s", issueKey, userId, StringUtil.filterSpecialChar(userName),
-                startDate.format(Const.YEAR2DAY_FMT), timeSpentSeconds / 3600);
+                workDate.format(Const.YEAR2DAY_FMT), timeSpentHours);
     }
 }
