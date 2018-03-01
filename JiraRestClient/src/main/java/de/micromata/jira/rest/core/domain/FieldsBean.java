@@ -83,7 +83,7 @@ public class FieldsBean {
     private WorklogBean worklog;
     @Expose
     private Integer workratio;
-
+    @Expose
     private List<CustomFieldBaseBean> customFields;
 
     public AggregateprogressBean getAggregateprogress() {

@@ -1,10 +1,14 @@
 package de.micromata.jira.rest.custom.util;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import de.micromata.jira.rest.core.Const;
 import de.micromata.jira.rest.core.domain.IssueBean;
+import de.micromata.jira.rest.core.domain.UserBean;
 import de.micromata.jira.rest.core.domain.WorklogItemBean;
+import de.micromata.jira.rest.core.domain.customFields.UserSelectBean;
+import de.micromata.jira.rest.core.jql.EField;
 import de.micromata.jira.rest.custom.model.IssueSimplePO;
 import de.micromata.jira.rest.custom.model.WorklogSimplePO;
 
@@ -17,6 +21,30 @@ public class ModelUtil {
         po.setIssueType(issue.getFields().getIssuetype().getName());
         po.setPriority(issue.getFields().getPriority().getName());
         po.setSelfUrl(issue.getSelf());
+        po.setStatus(issue.getFields().getStatus().getName());
+        po.setSummary(issue.getFields().getSummary());
+        UserBean assignee = issue.getFields().getAssignee();
+        if (assignee != null) {
+            po.setAssignee(issue.getFields().getAssignee().getName().trim());
+        }
+        Optional<UserBean> owner = issue.getFields().getCustomFields().stream()
+                .filter(u -> EField.OWNER.getField().equals(u.getId())).map(u -> ((UserSelectBean) u).getUsers().get(0))
+                .findFirst();
+        if(owner.isPresent()){
+            po.setOwner(owner.get().getName().trim());
+        }
+        Integer timeEstimate = issue.getFields().getTimeoriginalestimate();
+        if (timeEstimate != null) {
+            po.setEstHour(timeEstimate / 3600D);
+        } else {
+            po.setEstHour(0D);
+        }
+        Integer aggrTimeEstimate = issue.getFields().getAggregatetimeoriginalestimate();
+        if (aggrTimeEstimate != null) {
+            po.setSumEstHour(aggrTimeEstimate / 3600D);
+        } else {
+            po.setSumEstHour(0D);
+        }
         return po;
     }
 
@@ -25,7 +53,7 @@ public class ModelUtil {
         po.setIssueKey(issueKey);
         po.setWorkDate(LocalDate.parse(item.getStarted(), Const.YAER2MS_TZ_FMT));
         po.setTimeSpentHours(item.getTimeSpentSeconds() / 3600D);
-        po.setUserId(item.getAuthor().getName());
+        po.setUserId(item.getAuthor().getName().trim());
         po.setUserName(item.getAuthor().getDisplayName());
         return po;
     }

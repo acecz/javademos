@@ -1,5 +1,7 @@
 package de.micromata.jira.rest.core.domain;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 public class UserBean extends BaseBean {
@@ -45,4 +47,9 @@ public class UserBean extends BaseBean {
         this.emailAddress = emailAddress;
     }
 
+    @Override
+    public String toString() {
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        return gson.toJson(this);
+    }
 }

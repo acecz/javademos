@@ -3,6 +3,7 @@ package de.micromata.jira.rest.core.domain;
 import com.google.gson.annotations.Expose;
 
 public class WorklogItemBean {
+    @Expose
     private String self;
     @Expose
     private UserBean author;

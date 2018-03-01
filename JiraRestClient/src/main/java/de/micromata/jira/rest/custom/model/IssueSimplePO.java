@@ -1,11 +1,19 @@
 package de.micromata.jira.rest.custom.model;
 
+import de.micromata.jira.rest.core.util.JsonUtil;
+
 public class IssueSimplePO {
     private String key;
     private String id;
+    private String status;
+    private String assignee;
+    private String owner;
+    private String summary;
     private String issueType;
     private String priority;
     private String selfUrl;
+    private Double estHour;
+    private Double sumEstHour;
 
     public String getKey() {
         return key;
@@ -47,14 +55,56 @@ public class IssueSimplePO {
         this.selfUrl = selfUrl;
     }
 
+    public String getAssignee() {
+        return assignee;
+    }
+
+    public void setAssignee(String assignee) {
+        this.assignee = assignee;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Double getEstHour() {
+        return estHour;
+    }
+
+    public void setEstHour(Double estHour) {
+        this.estHour = estHour;
+    }
+
+    public Double getSumEstHour() {
+        return sumEstHour;
+    }
+
+    public void setSumEstHour(Double sumEstHour) {
+        this.sumEstHour = sumEstHour;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
     @Override
     public String toString() {
-        return "IssueSimplePO{" +
-            "key='" + key + '\'' +
-            ", id='" + id + '\'' +
-            ", issueType='" + issueType + '\'' +
-            ", priority='" + priority + '\'' +
-            ", selfUrl='" + selfUrl + '\'' +
-            '}';
+        return JsonUtil.dbgStr(this);
     }
 }

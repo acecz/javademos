@@ -1,5 +1,6 @@
 package de.micromata.jira.rest.test;
 
+import com.google.gson.Gson;
 import de.micromata.jira.rest.JiraRestClient;
 import de.micromata.jira.rest.core.jql.JqlConstants;
 import de.micromata.jira.rest.core.misc.RestPathConstants;
@@ -16,7 +17,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BaseClient implements JqlConstants, RestPathConstants {
     static AtomicReference<JiraRestClient> clientRef = new AtomicReference();
-
+    static final Gson gson = new Gson();
+    public static JiraRestClient restClient;
     static String CONFIGFILENAME = "config.properties";
     static ExecutorService executorService;
     static String URL_PARAM = "url";
@@ -36,7 +38,8 @@ public class BaseClient implements JqlConstants, RestPathConstants {
         JiraRestClient jiraRestClient = new JiraRestClient(executorService);
         jiraRestClient.connect(uri, config.getProperty(LOGIN_PARAM), config.getProperty(PASSWORD_PARAM));
         clientRef.set(jiraRestClient);
-        return jiraRestClient;
+        restClient = clientRef.get();
+        return clientRef.get();
     }
 
     public static void disConnect() {

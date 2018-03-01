@@ -30,8 +30,6 @@ public class SearchClient extends BaseClient {
 
     protected static final String PROJECT_TO_SEARCH = "MATSUP";
 
-    static final Gson gson = new Gson();
-
     public static JiraRestClient restClient;
 
     public static void main(String[] args) throws Exception {
@@ -56,18 +54,22 @@ public class SearchClient extends BaseClient {
         JqlSearchBean jsb = new JqlSearchBean();
         JqlBuilder builder = new JqlBuilder();
         IssueMonitorQueryBean issueQb = new IssueMonitorQueryBean();
-        issueQb.setStartDate(LocalDate.of(2018, 1, 1));
-        issueQb.setEndDate(LocalDate.of(2018, 2, 1));
+        LocalDate now = LocalDate.now();
+        issueQb.setStartDate(now.minusDays(7));
+        issueQb.setEndDate(now);
 
-        String jql = builder.addCondition(EField.PROJECT, EOperator.EQUALS, "CNTMAT")
+        String jql = builder.addCondition(EField.PROJECT, EOperator.IN, "CNTMAT", "MATSUP")
                 // .and().addCondition(EField.STATUS, EOperator.EQUALS, STATUS_OPEN)
-                .and().addCondition(EField.UPDATED, EOperator.GREATER_THAN_EQUALS,
-                        issueQb.getStartDate().format(Const.YEAR2DAY_FMT)).and()
-                .addCondition(EField.UPDATED, EOperator.LESS_THAN, issueQb.getEndDate().format(Const.YEAR2DAY_FMT))
-                //.and().addCondition(EField.ISSUE_KEY, EOperator.EQUALS, "CNTMAT-5478")
+                .and()
+                .addCondition(EField.UPDATED, EOperator.GREATER_THAN_EQUALS,
+                        issueQb.getStartDate().minusDays(7).format(Const.YEAR2DAY_FMT))
+                // .and()
+                // .addCondition(EField.UPDATED, EOperator.LESS_THAN_EQUALS,
+                // issueQb.getEndDate().format(Const.YEAR2DAY_FMT))
+                // .and().addCondition(EField.ISSUE_KEY, EOperator.EQUALS, "CNTMAT-5478")
                 .orderBy(SortOrder.ASC, EField.CREATED);
         jsb.setJql(jql);
-        jsb.setMaxResults(500);
+        jsb.setMaxResults(1000);
         jsb.addField(EField.ISSUE_KEY, EField.STATUS, EField.DUE, EField.ISSUE_TYPE, EField.PRIORITY, EField.WORKLOG);
         // jsb.addExpand(EField.TRANSITIONS);
         Future<JqlSearchResult> future = restClient.getSearchClient().searchIssues(jsb);
@@ -86,6 +88,7 @@ public class SearchClient extends BaseClient {
         System.out.println(worklogs);
         ReportUtil.issueCsvReport(issueQb, issueMap);
         ReportUtil.worklogCsvReport(issueQb, worklogs);
+
     }
 
     private static void searchWorkLog() throws Exception {
