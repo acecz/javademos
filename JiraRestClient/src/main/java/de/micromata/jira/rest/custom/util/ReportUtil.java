@@ -45,11 +45,11 @@ public class ReportUtil {
 
     private static void originalWorklog(List<WorklogSimplePO> worklogs) {
         List<String> wlCsvRows = new ArrayList<>();
-        wlCsvRows.add("IssueKey,User,Day,Worklog");
-        String wlRowFmt = "%s,%s,%s,%f";
+        wlCsvRows.add("IssueKey,User,Day,Worklog,WorkDesc");
+        String wlRowFmt = "%s,%s,%s,%f,%s";
         worklogs.forEach(wl -> {
             String row = String.format(wlRowFmt, wl.getIssueKey(), wl.getUserId(),
-                    wl.getWorkDate().format(Const.YEAR2DAY_FMT), wl.getTimeSpentHours());
+                    wl.getWorkDate().format(Const.YEAR2DAY_FMT), wl.getTimeSpentHours(), wl.getWorkDesc());
             wlCsvRows.add(row);
         });
         try {
@@ -182,42 +182,6 @@ public class ReportUtil {
         csvMatrix.setRowSet(userRowMap);
         csvMatrix.setRowColValMap(rcvMap);
         return csvMatrix;
-    }
-
-    private static List<WorklogSimplePO> reCalcWorkLogs(List<WorklogSimplePO> worklogs) {
-        TreeSet<String> holidays = getHolidays();
-        List<WorklogSimplePO> rtnWorklogs = new ArrayList<>();
-        worklogs.forEach(wl -> rtnWorklogs.addAll(reCalcWorkLog(holidays, wl)));
-        return rtnWorklogs;
-    }
-
-    private static Collection<? extends WorklogSimplePO> reCalcWorkLog(TreeSet<String> holidays, WorklogSimplePO wl) {
-        Double wkHours = wl.getTimeSpentHours();
-        Double rwkHrs = wkHours;
-        if (rwkHrs <= 8) {
-            WorklogSimplePO wls = WorklogSimplePO.createNew(wl.getIssueKey(), wl.getUserId(), wl.getUserName(),
-                    wl.getWorkDate(), rwkHrs);
-            return Arrays.asList(wls);
-        }
-        List<WorklogSimplePO> rtnWorklogs = new ArrayList<>();
-        rwkHrs = rwkHrs - 8;
-        WorklogSimplePO firstWl = WorklogSimplePO.createNew(wl.getIssueKey(), wl.getUserId(), wl.getUserName(),
-                wl.getWorkDate(), 8D);
-        rtnWorklogs.add(firstWl);
-        LocalDate nextWlDay = wl.getWorkDate();
-        boolean startInHoliday = holidays.contains(wl.getWorkDate().format(Const.YEAR2DAY_FMT));
-        while (rwkHrs > 0) {
-            nextWlDay = calcNextWlDay(nextWlDay, holidays, startInHoliday);
-            WorklogSimplePO wls;
-            if (rwkHrs > 8) {
-                wls = WorklogSimplePO.createNew(wl.getIssueKey(), wl.getUserId(), wl.getUserName(), nextWlDay, 8D);
-            } else {
-                wls = WorklogSimplePO.createNew(wl.getIssueKey(), wl.getUserId(), wl.getUserName(), nextWlDay, rwkHrs);
-            }
-            rtnWorklogs.add(wls);
-            rwkHrs = rwkHrs - 8;
-        }
-        return rtnWorklogs;
     }
 
     private static LocalDate calcNextWlDay(LocalDate nextWlDay, TreeSet<String> holidays, boolean startInHoliday) {

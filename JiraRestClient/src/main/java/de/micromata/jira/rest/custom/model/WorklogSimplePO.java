@@ -18,17 +18,7 @@ public class WorklogSimplePO {
 
     private Double timeSpentHours;
 
-    public static WorklogSimplePO createNew(String issueKey, String userId, String userName, LocalDate startDate,
-            Double hours) {
-        WorklogSimplePO newOne = new WorklogSimplePO();
-        newOne.setIssueKey(issueKey);
-        newOne.setUserId(userId);
-        newOne.setUserName(userName);
-        newOne.setWorkDate(startDate);
-        newOne.setTimeSpentHours(hours);
-        return newOne;
-
-    }
+    private String workDesc;
 
     public LocalDate getWorkDate() {
         return workDate;
@@ -68,6 +58,14 @@ public class WorklogSimplePO {
 
     public void setTimeSpentHours(Double timeSpentHours) {
         this.timeSpentHours = timeSpentHours;
+    }
+
+    public String getWorkDesc() {
+        return workDesc;
+    }
+
+    public void setWorkDesc(String workDesc) {
+        this.workDesc = workDesc;
     }
 
     @Override

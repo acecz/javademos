@@ -8,7 +8,7 @@ public class WorklogItemBean {
     @Expose
     private UserBean author;
     private UserBean updateAuthor;
-
+    @Expose
     private String comment;
 
     private String created;

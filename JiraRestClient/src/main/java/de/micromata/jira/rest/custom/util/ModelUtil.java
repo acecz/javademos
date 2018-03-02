@@ -9,6 +9,7 @@ import de.micromata.jira.rest.core.domain.UserBean;
 import de.micromata.jira.rest.core.domain.WorklogItemBean;
 import de.micromata.jira.rest.core.domain.customFields.UserSelectBean;
 import de.micromata.jira.rest.core.jql.EField;
+import de.micromata.jira.rest.core.util.StringUtil;
 import de.micromata.jira.rest.custom.model.IssueSimplePO;
 import de.micromata.jira.rest.custom.model.WorklogSimplePO;
 
@@ -30,7 +31,7 @@ public class ModelUtil {
         Optional<UserBean> owner = issue.getFields().getCustomFields().stream()
                 .filter(u -> EField.OWNER.getField().equals(u.getId())).map(u -> ((UserSelectBean) u).getUsers().get(0))
                 .findFirst();
-        if(owner.isPresent()){
+        if (owner.isPresent()) {
             po.setOwner(owner.get().getName().trim());
         }
         Integer timeEstimate = issue.getFields().getTimeoriginalestimate();
@@ -55,6 +56,7 @@ public class ModelUtil {
         po.setTimeSpentHours(item.getTimeSpentSeconds() / 3600D);
         po.setUserId(item.getAuthor().getName().trim());
         po.setUserName(item.getAuthor().getDisplayName());
+        po.setWorkDesc(StringUtil.filterSpecialChar(item.getComment()));
         return po;
     }
 }
