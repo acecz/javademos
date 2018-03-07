@@ -1,4 +1,4 @@
-# Java 8 新特性
+# Java 8 新特性简介
 
 ## 哪些新特性
 Java8 引入许多新的特性，详细列表见 [What's New in JDK 8](http://www.oracle.com/technetwork/java/javase/8-whats-new-2157071.html)
@@ -28,13 +28,34 @@ Java8 引入许多新的特性，详细列表见 [What's New in JDK 8](http://ww
 
 _(Java Doc)_ An informative annotation type used to indicate that an interface type declaration is intended to be a functional interface as defined by the Java Language Specification.
 Conceptually, a functional **interface** has **exactly one abstract method**.
-
 Note that instances of functional interfaces can be created with **lambda expressions, method references, or constructor references**.
-- 无副作用
-- Lambda
+- Lambda Expressions
+
+如anonymous class是接口或父类的便利实现形式，Lambda Expression是FunctionalInterface的一种便利实现方式。
+- 形式映射
+
+函数的三要素:定义域，值域，映射规则，对应Java方法即: 入参，返回值，内部行为。不管lambda expressions, method references, 或 constructor references，都是去依照FunctionalInterface的方法签名去实现具体行为。
+
 - 行为参数化
 
+函数（FunctionalInterface） 变成了一等公民，可以当作参数来传递了。这需要只熟悉OO程序员做思想上的转变。
+
 ### 样式和和示例
+- 函数的创建形式
+    - 实例化
+    ```java
+    public class Test{
+    }
+    ```
+    - lambda expressions
+    - method references
+    - constructor references
+- 典型用法
+    - Runnable
+    - Sort
+    - Compare
+    -
+
 
 ### 底层实现
 - 不易Debug和异常处理
