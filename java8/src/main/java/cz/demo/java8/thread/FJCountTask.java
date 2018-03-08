@@ -45,7 +45,7 @@ public class FJCountTask extends RecursiveTask<Long> {
             sum = leftResult + rightResult;
         }
         System.out
-                .println("a\t" + String.format(fmt, offset + start, offset + end, "E", Thread.currentThread().getId()));
+            .println("a\t" + String.format(fmt, offset + start, offset + end, "E", Thread.currentThread().getId()));
         return sum;
     }
 

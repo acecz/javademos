@@ -8,7 +8,7 @@ Java8 引入许多新的特性，详细列表见 [What's New in JDK 8](http://ww
 
 - FunctionalInterface
 - Lambda Expressions
-- Stream API of Collections
+- Stream API
 - Optional
 - java.time package
 - CompletableFuture
@@ -183,20 +183,97 @@ Note that instances of functional interfaces can be created with **lambda expres
 
 
 ### 并行处理
+
+- 样式：
+
+  ```java
+  MockUtil.MOCK_STUDENTS.stream(). ...
+  MockUtil.MOCK_STUDENTS.parallelStream(). ...
+  ```
+
+  ​
+
+
 - 特点
 
-  [sw](https://stackoverflow.com/questions/20375176/should-i-always-use-a-parallel-stream-when-possible)
+  - 充分利用多核心CPU的计算能力
+  - 并行处理的数据相互没有依赖
+  - 使用的各个函数是无状态的
+  - 收集器规则不复杂
 
-  [oio](https://blog.oio.de/2016/01/22/parallel-stream-processing-in-java-8-performance-of-sequential-vs-parallel-stream-processing/)
+- 分析与限制
 
-- 限制
+  - 影响因素: 数据量，CPU核心数，数据结构，计算资源需求比重，分解算法，合并操作，中间操作
+
+
+  - 使用并行流的注意点
+    - 有疑问或不确定，测量
+    - 留意自动装箱
+    - 避免某些顺序流比并行流快的坑, (limit,findFirst...)
+    - 衡量流处理的整体计算成本，一般计算成本比重越高，越适合并行流。
+    - 评估数据量和计算机核数
+    - 考虑流中数据结构是否易于分解，以及流中间行为对数据分解的影响
+    - 最终收集合并行为的影响
+
+
+  - [[Should I always use a parallel stream when possible?](https://stackoverflow.com/questions/20375176/should-i-always-use-a-parallel-stream-when-possible)]
+  - [Parallel stream processing in Java 8 – performance of sequential vs. parallel stream processing](https://blog.oio.de/2016/01/22/parallel-stream-processing-in-java-8-performance-of-sequential-vs-parallel-stream-processing/)
+
+- 技术
+
+  - Fork/Join Framework 
+
+    Fork/Join parallelism is among the simplest and most effective design techniques for obtaining good parallel performance.
+    The fork operation starts a new parallel fork/join subtask. The join operation causes the current task not to proceed until the forked subtask has completed. Fork/join algorithms, like other divide−and−conquer algorithms, are nearly always recursive, repeatedly splitting subtasks until they are small enough to solve using simple, short sequential methods. — [A Java Fork/Join Framework](http://gee.cs.oswego.edu/dl/papers/fj.pdf)  - Doug Lea
+
+    [Fork and Join: Java Can Excel at Painless Parallel Programming Too!](http://www.oracle.com/technetwork/articles/java/fork-join-422606.html)
+
+    -  Work−Stealing 负载均衡测量
+
+    ​
 
 ### 底层实现
+
+[[深入理解Java Stream流水线](http://www.cnblogs.com/CarpenterLee/p/6637118.html)]
 
 
 ## Utilities And Functions
 
 ### Java Time Package
+
+- Why do we need a new date and time library?  [Java SE 8 Date and Time](http://www.oracle.com/technetwork/articles/java/jf14-date-time-2125367.html)
+  - Old data-time issue
+    - thread-safe issue (mutable)
+    - poor API design
+  - Core Ideas
+    - Immutable-value classes
+    - Domain-driven design
+    - Separation of chronologies
+
+
+- [Package Hierarchies](https://docs.oracle.com/javase/8/docs/api/java/time/package-tree.html)
+
+- 样式和和示例
+
+  ```java
+   public static String time2Str(Instant instant, TimePattern pattern) {
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern.pattern).withZone(ZoneId.systemDefault());
+          return formatter.format(instant);
+   }
+
+  public static String duration2Str(Duration duration) {
+          long millis = duration.toMillis() % 1000;
+          long seconds = duration.getSeconds();
+          return String.format("%d:%02d:%02d.%03d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60), millis);
+      }
+  ```
+
+  ```java
+     
+  TimeUtil.durationMinSec2Str(Duration.between(startTimestamp, endTimestamp)
+  ```
+
+  ​
 
 ### Optional
 
