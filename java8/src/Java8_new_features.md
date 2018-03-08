@@ -180,6 +180,14 @@ Note that instances of functional interfaces can be created with **lambda expres
     }
 ```
 
+```java
+ public static void streamSample() {
+        List<String> nouseList = MockUtil.MOCK_STUDENTS.stream().limit(3).map(s -> s.toString())
+                .flatMap(s -> Arrays.stream(s.split("E|e"))).collect(Collectors.toList());
+        System.out.println(nouseList);
+    }
+```
+
 
 
 ### 并行处理
@@ -253,7 +261,7 @@ Note that instances of functional interfaces can be created with **lambda expres
 
 - [Package Hierarchies](https://docs.oracle.com/javase/8/docs/api/java/time/package-tree.html)
 
-- 样式和和示例
+- 示例
 
   ```java
    public static String time2Str(Instant instant, TimePattern pattern) {
@@ -273,11 +281,26 @@ Note that instances of functional interfaces can be created with **lambda expres
   TimeUtil.durationMinSec2Str(Duration.between(startTimestamp, endTimestamp)
   ```
 
-  ​
+  class: TimeSample
 
 ### Optional
 
+- 引入原因
+
+  Java 8 has introduced a new class Optional in java.util package. It is used to represent a value is present or absent. The main advantage of this new construct is that No more too many null checks and `NullPointerException`. It avoids any runtime `NullPointerExceptions` and supports us in developing clean and neat Java APIs or Applications. Like Collections and arrays, it is also a Container to hold at most one value. Let us explore this new construct with some useful examples.
+
+  Advantages of Java 8 Optional:
+
+  1. Null checks are not required.
+  2. No more NullPointerException at run-time.
+  3. We can develop clean and neat APIs.
+  4. No more Boiler plate code
+
+  [Java 8 Optional In Depth](https://www.mkyong.com/java8/java-8-optional-in-depth/)
+
 ### CompletableFuture
+
+// TODO
 
 ### Try-with-resource
 
