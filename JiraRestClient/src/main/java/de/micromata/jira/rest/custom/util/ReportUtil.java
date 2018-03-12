@@ -258,5 +258,7 @@ public class ReportUtil {
     }
 
     public static void ganttReport(ReleaseData issues) {
+        List<String> mdlines = new ArrayList<>();
+
     }
 }

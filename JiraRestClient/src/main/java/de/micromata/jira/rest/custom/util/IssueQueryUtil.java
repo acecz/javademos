@@ -23,15 +23,31 @@ public class IssueQueryUtil {
         JqlSearchBean jsb = new JqlSearchBean();
         JqlBuilder builder = new JqlBuilder();
         String jql = builder.addCondition(EField.ISSUE_TYPE, EOperator.EQUALS, JqlConstants.ISSUETYPE_BUG).and()
-                .addCondition(EField.STATUS, EOperator.IN, JqlConstants.STATUS_OPEN, JqlConstants.STATUS_REOPENED,
-                        JqlConstants.STATUS_IN_PROGRESS)
-                .and().addCondition(EField.ASSIGNEE, EOperator.IN, devs.toArray(new String[devs.size()])).and()
-                .addCondition(EField.PRIORITY, EOperator.IN, "P1", "P2", "P3").orderBy(SortOrder.ASC, EField.PRIORITY);
+            .addCondition(EField.STATUS, EOperator.IN, JqlConstants.STATUS_OPEN, JqlConstants.STATUS_REOPENED,
+                JqlConstants.STATUS_IN_PROGRESS)
+            .and().addCondition(EField.ASSIGNEE, EOperator.IN, devs.toArray(new String[devs.size()])).and()
+            .addCondition(EField.PRIORITY, EOperator.IN, "P1", "P2", "P3").orderBy(SortOrder.ASC, EField.PRIORITY);
         jsb.setJql(jql);
         jsb.setMaxResults(1000);
         jsb.addField(EField.ISSUE_KEY, EField.STATUS, EField.DUE, EField.ISSUE_TYPE, EField.PRIORITY, EField.SUMMARY,
-                EField.ASSIGNEE, EField.TIME_ORIGINAL_ESTIMATE, EField.AGGREGATE_TIME_ORIGINAL_ESTIMATE, EField.OWNER,
-                EField.STATUS);
+            EField.ASSIGNEE, EField.TIME_ORIGINAL_ESTIMATE, EField.AGGREGATE_TIME_ORIGINAL_ESTIMATE, EField.OWNER,
+            EField.STATUS);
+        Future<JqlSearchResult> future = restClient.getSearchClient().searchIssues(jsb);
+        JqlSearchResult jqlSearchResult = future.get();
+        return jqlSearchResult.getIssues().stream().map(ModelUtil::simpleIssue).collect(Collectors.toList());
+    }
+
+    public static List<IssueSimplePO> matupBugs(JiraRestClient restClient) throws Exception {
+        Set<String> devs = FileUtil.developers().stream().map(s -> "\"" + s + "\"").collect(Collectors.toSet());
+        JqlSearchBean jsb = new JqlSearchBean();
+        JqlBuilder builder = new JqlBuilder();
+        String jql = builder.addCondition(EField.PROJECT, EOperator.EQUALS, "MATSUP")
+            .orderBy(SortOrder.ASC, EField.PRIORITY);
+        jsb.setJql(jql);
+        jsb.setMaxResults(1000);
+        jsb.addField(EField.ISSUE_KEY, EField.STATUS, EField.DUE, EField.ISSUE_TYPE, EField.PRIORITY, EField.SUMMARY,
+            EField.ASSIGNEE, EField.TIME_ORIGINAL_ESTIMATE, EField.AGGREGATE_TIME_ORIGINAL_ESTIMATE, EField.OWNER,
+            EField.STATUS);
         Future<JqlSearchResult> future = restClient.getSearchClient().searchIssues(jsb);
         JqlSearchResult jqlSearchResult = future.get();
         return jqlSearchResult.getIssues().stream().map(ModelUtil::simpleIssue).collect(Collectors.toList());
@@ -41,12 +57,12 @@ public class IssueQueryUtil {
         JqlSearchBean jsb = new JqlSearchBean();
         JqlBuilder builder = new JqlBuilder();
         String jql = builder.addCondition(EField.ISSUE_KEY, EOperator.IN, taskKeys.toArray(new String[taskKeys.size()]))
-                .orderBy(SortOrder.ASC, EField.PRIORITY);
+            .orderBy(SortOrder.ASC, EField.PRIORITY);
         jsb.setJql(jql);
         jsb.setMaxResults(1000);
         jsb.addField(EField.ISSUE_KEY, EField.STATUS, EField.DUE, EField.ISSUE_TYPE, EField.PRIORITY, EField.SUMMARY,
-                EField.ASSIGNEE, EField.TIME_ORIGINAL_ESTIMATE, EField.AGGREGATE_TIME_ORIGINAL_ESTIMATE, EField.OWNER,
-                EField.STATUS);
+            EField.ASSIGNEE, EField.TIME_ORIGINAL_ESTIMATE, EField.AGGREGATE_TIME_ORIGINAL_ESTIMATE, EField.OWNER,
+            EField.STATUS);
         Future<JqlSearchResult> future = restClient.getSearchClient().searchIssues(jsb);
         JqlSearchResult jqlSearchResult = future.get();
         return jqlSearchResult.getIssues().stream().map(ModelUtil::simpleIssue).collect(Collectors.toList());
