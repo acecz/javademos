@@ -1,5 +1,7 @@
 package de.micromata.jira.rest.custom.model;
 
+import java.time.LocalDate;
+
 import de.micromata.jira.rest.core.util.JsonUtil;
 
 public class IssueSimplePO {
@@ -14,6 +16,8 @@ public class IssueSimplePO {
     private String selfUrl;
     private Double estHour;
     private Double sumEstHour;
+    private LocalDate dueDate;
+    private LocalDate naturalStartDay;
 
     public String getKey() {
         return key;
@@ -101,6 +105,22 @@ public class IssueSimplePO {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public LocalDate getNaturalStartDay() {
+        return naturalStartDay;
+    }
+
+    public void setNaturalStartDay(LocalDate naturalStartDay) {
+        this.naturalStartDay = naturalStartDay;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 
     @Override

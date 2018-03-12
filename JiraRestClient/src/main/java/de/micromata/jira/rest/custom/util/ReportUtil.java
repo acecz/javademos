@@ -24,6 +24,7 @@ import de.micromata.jira.rest.core.util.StringUtil;
 import de.micromata.jira.rest.custom.model.CsvMatrix;
 import de.micromata.jira.rest.custom.model.IssueMonitorQueryBean;
 import de.micromata.jira.rest.custom.model.IssueSimplePO;
+import de.micromata.jira.rest.custom.model.ReleaseData;
 import de.micromata.jira.rest.custom.model.WorklogSimplePO;
 
 public class ReportUtil {
@@ -33,9 +34,9 @@ public class ReportUtil {
     }
 
     public static void worklogCsvReport(IssueMonitorQueryBean issueQb, List<WorklogSimplePO> worklogs)
-            throws Exception {
+        throws Exception {
         worklogs = worklogs.stream().filter(wl -> wl.getWorkDate().isAfter(issueQb.getStartDate().minusDays(1)))
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
         // worklogs = worklogs.stream().filter(wl -> wl.getWorkDate().isAfter(issueQb.getStartDate().minusDays(1)))
         // .collect(Collectors.toList());
         originalWorklog(worklogs);
@@ -49,7 +50,7 @@ public class ReportUtil {
         String wlRowFmt = "%s,%s,%s,%f,%s";
         worklogs.forEach(wl -> {
             String row = String.format(wlRowFmt, wl.getIssueKey(), wl.getUserId(),
-                    wl.getWorkDate().format(Const.YEAR2DAY_FMT), wl.getTimeSpentHours(), wl.getWorkDesc());
+                wl.getWorkDate().format(Const.YEAR2DAY_FMT), wl.getTimeSpentHours(), wl.getWorkDesc());
             wlCsvRows.add(row);
         });
         try {
@@ -95,7 +96,7 @@ public class ReportUtil {
 
     private static CsvMatrix calcIssueDayWlMatrix(IssueMonitorQueryBean issueQb, List<WorklogSimplePO> worklogs) {
         Set<String> issueRowMap = new TreeSet<>(
-                worklogs.stream().map(wl -> wl.getIssueKey()).sorted().collect(Collectors.toSet()));
+            worklogs.stream().map(wl -> wl.getIssueKey()).sorted().collect(Collectors.toSet()));
         Set<String> dayColumnMap = new TreeSet<>();
         LocalDate startDate = issueQb.getStartDate();
         LocalDate endDate = issueQb.getEndDate();
@@ -123,27 +124,27 @@ public class ReportUtil {
     }
 
     private static void userDayWorkLogCsv(IssueMonitorQueryBean issueQb, List<WorklogSimplePO> worklogs)
-            throws Exception {
+        throws Exception {
         CsvMatrix userDayWlMatrix = calcUserDayWlMatrix(issueQb, worklogs);
         List<String> csvRows = new ArrayList<>();
         Set<String> allaUsers = FileUtil.allusers();
         String header = "User," + userDayWlMatrix.getColumnSet().stream().collect(Collectors.joining(","));
         csvRows.add(header);
         userDayWlMatrix.getRowColValMap().entrySet().stream().filter(e -> allaUsers.contains(e.getKey()))
-                .sorted(Comparator.comparing(Map.Entry::getKey)).forEach(e -> {
-                    StringBuilder row = new StringBuilder();
-                    row.append(e.getKey()).append(",");
-                    userDayWlMatrix.getColumnSet().forEach(day -> {
-                        Double val = e.getValue().get(day);
-                        if (val == null) {
-                            row.append(",");
-                        } else {
-                            row.append(val).append(",");
-                        }
-                    });
-                    row.deleteCharAt(row.length() - 1);
-                    csvRows.add(row.toString());
-                });
+            .sorted(Comparator.comparing(Map.Entry::getKey)).forEach(e -> {
+            StringBuilder row = new StringBuilder();
+            row.append(e.getKey()).append(",");
+            userDayWlMatrix.getColumnSet().forEach(day -> {
+                Double val = e.getValue().get(day);
+                if (val == null) {
+                    row.append(",");
+                } else {
+                    row.append(val).append(",");
+                }
+            });
+            row.deleteCharAt(row.length() - 1);
+            csvRows.add(row.toString());
+        });
         try {
             File csv = new File("userWorkLog.csv");
             if (csv.exists()) {
@@ -157,7 +158,7 @@ public class ReportUtil {
 
     private static CsvMatrix calcUserDayWlMatrix(IssueMonitorQueryBean issueQb, List<WorklogSimplePO> worklogs) {
         Set<String> userRowMap = new TreeSet<>(
-                worklogs.stream().map(wl -> wl.getUserId()).sorted().collect(Collectors.toSet()));
+            worklogs.stream().map(wl -> wl.getUserId()).sorted().collect(Collectors.toSet()));
         Set<String> dayColumnMap = new TreeSet<>();
         LocalDate startDate = issueQb.getStartDate();
         LocalDate endDate = issueQb.getEndDate();
@@ -201,9 +202,8 @@ public class ReportUtil {
         }
         try {
             File holidays = new File("holidays.txt");
-            System.out.println(holidays.getAbsolutePath());
             Set<String> set = Files.readAllLines(new File("holidays.txt").toPath()).stream()
-                    .filter(s -> s != null && s.trim().length() == 10).collect(Collectors.toSet());
+                .filter(s -> s != null && s.trim().length() == 10).collect(Collectors.toSet());
             HOLIDAYS.addAll(set);
         } catch (IOException e) {
             e.printStackTrace();
@@ -233,8 +233,8 @@ public class ReportUtil {
             v.forEach(issue -> {
                 List<String> issueCtt = new ArrayList<>();
                 issueCtt.addAll(Arrays.asList(issue.getKey(), StringUtil.filterSpecialChar(issue.getSummary()),
-                        issue.getPriority(), issue.getStatus(), issue.getAssignee(), issue.getOwner(),
-                        Double.valueOf(issue.getEstHour() / 8).toString()));
+                    issue.getPriority(), issue.getStatus(), issue.getAssignee(), issue.getOwner(),
+                    Double.valueOf(issue.getEstHour() / 8).toString()));
                 for (int i = 0; i < userCnt; i++) {
                     if (atomInt.get() == i && issue.getEstHour() != null) {
                         issueCtt.add(Double.valueOf(issue.getEstHour() / 8).toString());
@@ -255,5 +255,8 @@ public class ReportUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void ganttReport(ReleaseData issues) {
     }
 }

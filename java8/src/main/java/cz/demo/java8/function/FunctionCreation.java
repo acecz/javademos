@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 
 public class FunctionCreation {
     public static void main(String[] args) {
-        // instance();
+         instance();
         // constructorReferences();
-        methodReferences();
+        // methodReferences();
     }
 
     public static void instance() {

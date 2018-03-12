@@ -1,6 +1,9 @@
 # Java 8 新特性简介
 
+[TOC]
+
 ## 哪些新特性
+
 Java8 引入许多新的特性，详细列表见 [What's New in JDK 8](http://www.oracle.com/technetwork/java/javase/8-whats-new-2157071.html)
 和 [Release Notes for JDK 8 and JDK 8 Update Releases](http://www.oracle.com/technetwork/java/javase/8all-relnotes-2226344.html)。
 
@@ -12,10 +15,11 @@ Java8 引入许多新的特性，详细列表见 [What's New in JDK 8](http://ww
 - Optional
 - java.time package
 - CompletableFuture
+- Utilities
 
 主要特征的关联关系:
 - Functional programming -> FunctionalInterface, Stream
-- Stream -> Default/static methods in interfaces
+- Stream -> Default/static methods in interfaces (java.util.List)
 - FunctionalInterface -> Lambda Expressions, Method references to Lambda
 
 
@@ -52,7 +56,7 @@ Note that instances of functional interfaces can be created with **lambda expres
             };
             List<Student> ttYrSts = MockUtil.MOCK_STUDENTS.stream().filter(ageFilter).collect(Collectors.toList());
     ```
-    - lambda expressions
+    - lambda expressions and constructor references
 
       ```java
       StringBuilder nameContact = MockUtil.MOCK_STUDENTS.stream().collect(StringBuilder::new,
@@ -72,15 +76,8 @@ Note that instances of functional interfaces can be created with **lambda expres
 
       ​
 
-    - constructor references
-
-      ```java
-      StringBuilder nameContact = MockUtil.MOCK_STUDENTS.stream().collect(StringBuilder::new,
-                      (s, st) -> s.append(st.getName()), (s1, s2) -> s1.append(s2));
-      System.out.println(nameContact);
-      ```
-
       ​
+
 - 典型用法
     - Runnable
 
@@ -182,9 +179,9 @@ Note that instances of functional interfaces can be created with **lambda expres
 
 ```java
  public static void streamSample() {
-        List<String> nouseList = MockUtil.MOCK_STUDENTS.stream().limit(3).map(s -> s.toString())
+        List<String> uselessList = MockUtil.MOCK_STUDENTS.stream().limit(3).map(s -> s.toString())
                 .flatMap(s -> Arrays.stream(s.split("E|e"))).collect(Collectors.toList());
-        System.out.println(nouseList);
+        System.out.println(uselessList);
     }
 ```
 
@@ -298,13 +295,107 @@ Note that instances of functional interfaces can be created with **lambda expres
 
   [Java 8 Optional In Depth](https://www.mkyong.com/java8/java-8-optional-in-depth/)
 
-### CompletableFuture
+### Files
 
-// TODO
+- 遍历文件（夹）
+
+  ```java
+  public static void filterFiles() throws IOException {
+          // File[] files = new File(".").listFiles((dir, name) -> true);
+          Files.walk(new File(".").toPath(), FileVisitOption.FOLLOW_LINKS)
+                  .forEach(p -> System.out.println(p.toFile().getAbsolutePath()));
+      }
+  ```
+
+  ​
+
+- 读取文件
+
+  ```java
+  public static void readFile() throws IOException {
+          Optional<Path> anyFile = Files.walk(new File(".").toPath(), FileVisitOption.FOLLOW_LINKS)
+                  .filter(p -> p.toFile().getName().endsWith(".java")).findAny();
+          if (anyFile.isPresent()) {
+              Optional<String> clzDeclare = Files.lines(anyFile.get()).parallel()
+                      .filter(s -> s != null && s.trim().startsWith("public class")).peek(s -> System.out.println(s))
+                      .findAny();
+              System.out.println(clzDeclare.orElse("none"));
+          }
+      }
+  ```
+
+  ​
+
+- 写入文件
+
+  ```java
+  private static void originalWorklog(List<WorklogSimplePO> worklogs) {
+          List<String> wlCsvRows = new ArrayList<>();
+          wlCsvRows.add("IssueKey,User,Day,Worklog,WorkDesc");
+          String wlRowFmt = "%s,%s,%s,%f,%s";
+          worklogs.forEach(wl -> {
+              String row = String.format(wlRowFmt, wl.getIssueKey(), wl.getUserId(),
+                      wl.getWorkDate().format(Const.YEAR2DAY_FMT), wl.getTimeSpentHours(), wl.getWorkDesc());
+              wlCsvRows.add(row);
+          });
+          try {
+              File csv = new File("worklogs.csv");
+              if (csv.exists()) {
+                  csv.delete();
+              }
+              Files.write(csv.toPath(), wlCsvRows, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+      }
+  ```
+
+  ​
 
 ### Try-with-resource
 
+- [The try-with-resources Statement](https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html)
 
+  > Any object that implements `java.lang.AutoCloseable`, which includes all objects which implement `java.io.Closeable`, can be used as a resource.
+
+- 示例
+
+  ```java
+  try (FileInputStream imgIs1 = new FileInputStream(benchmarkPath); FileInputStream imgIs2 = new FileInputStream(
+                  comparePath);) {
+              // do something
+          } catch (Exception e) {
+              log.error("compare imgs error! " + benchmarkPath, e);
+              // throw new FunctionException(e);
+          }
+  ```
+
+  ```java
+  private static BufferedImage loadJPG(File resource) throws Exception {
+          BufferedImage bi = null;
+          try (FileInputStream in = new FileInputStream(resource)) {
+              bi = ImageIO.read(in);
+          } catch (Exception io) {
+              log.error("Error happened when try to load the image from " + resource.getName());
+              if (io.getCause().getMessage().contains("Unexpected end of ZLIB input stream")) {
+                  log.error("resource maybe truncated, please check: " + resource.getAbsolutePath());
+                  throw new FunctionException(3549, io, resource.getAbsolutePath());
+              }
+              throw io;
+          }
+          if (bi == null) {
+              log.debug("bi is null.");
+              throw new FunctionException(3538, resource.getAbsolutePath());
+          }
+          return bi;
+      }
+  ```
+
+  ​
+
+### CompletableFuture
+
+// TODO
 
 
 
