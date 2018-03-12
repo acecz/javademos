@@ -13,6 +13,13 @@ public class UserReleaseData {
     private Map<String, List<IssueSimplePO>> priorityTaskMap = new TreeMap<>();
     private Map<String, List<IssueSimplePO>> priorityBugMap = new TreeMap<>();
 
+    public UserReleaseData() {
+    }
+
+    public UserReleaseData(String userName) {
+        this.userName = userName;
+    }
+
     public String getUserName() {
         return userName;
     }

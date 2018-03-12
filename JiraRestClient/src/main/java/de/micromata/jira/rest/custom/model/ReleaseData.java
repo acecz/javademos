@@ -1,6 +1,8 @@
 package de.micromata.jira.rest.custom.model;
 
+import de.micromata.jira.rest.core.Const;
 import de.micromata.jira.rest.custom.util.FileUtil;
+import de.micromata.jira.rest.custom.util.ReportUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,14 @@ public class ReleaseData {
     private List<IssueSimplePO> tasks;
     private List<IssueSimplePO> bugs;
     private Map<String, UserReleaseData> userDataMap = new TreeMap<>();
+
+    public Map<String, UserReleaseData> getUserDataMap() {
+        return userDataMap;
+    }
+
+    public void setUserDataMap(Map<String, UserReleaseData> userDataMap) {
+        this.userDataMap = userDataMap;
+    }
 
     public LocalDate getDevStart() {
         return devStart;
@@ -52,12 +62,12 @@ public class ReleaseData {
         tasks.forEach(po -> {
             adjustIssue4Gantt(po);
             String owner = po.getOwner();
-            userDataMap.computeIfAbsent(owner, key -> new UserReleaseData()).addIssueData(po);
+            userDataMap.computeIfAbsent(owner, key -> new UserReleaseData(key)).addIssueData(po);
         });
         bugs.forEach(po -> {
             adjustIssue4Gantt(po);
             String owner = po.getOwner();
-            userDataMap.computeIfAbsent(owner, key -> new UserReleaseData()).addIssueData(po);
+            userDataMap.computeIfAbsent(owner, key -> new UserReleaseData(key)).addIssueData(po);
         });
         userDataMap.values().forEach(urd -> {
             urd.getPriorityBugMap().forEach((k, v) -> v.sort(Comparator.comparing(IssueSimplePO::getNaturalStartDay)));
@@ -78,10 +88,13 @@ public class ReleaseData {
         try {
             Set<LocalDate> holidays = FileUtil.holidayDates();
             Double estHrs = po.getEstHour();
-            int days = (int) Math.ceil(estHrs / 8D);
+            int days = ReportUtil.hour2day(estHrs);
             LocalDate startDay = po.getDueDate();
+            if (days > 0) {
+                startDay = po.getDueDate().minusDays(1);
+            }
             days--;
-            for (; ; ) {
+            for (;;) {
                 if (days <= 0) {
                     break;
                 }
@@ -93,10 +106,10 @@ public class ReleaseData {
             }
             po.setNaturalStartDay(startDay);
             if (po.getAssignee() == null) {
-                po.setAssignee("none");
+                po.setAssignee(Const.ANONYMOUS_USER);
             }
             if (po.getOwner() == null) {
-                po.setOwner("none");
+                po.setOwner(Const.ANONYMOUS_USER);
             }
         } catch (Exception e) {
             e.printStackTrace();

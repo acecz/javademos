@@ -16,7 +16,6 @@ public class ReleaseGantt extends BaseClient {
     public static void main(String[] args) throws Exception {
         try {
             connect();
-            IssueQueryUtil.matupBugs(restClient).stream().map(IssueSimplePO::getStatus).distinct().forEach(System.out::println);
             ReleaseData releaseData = new ReleaseData();
             releaseData.setDevStart(LocalDate.of(2018, 03, 19));
             releaseData.setDevEnd(LocalDate.of(2018, 04, 11));

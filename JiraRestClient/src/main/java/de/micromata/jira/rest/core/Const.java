@@ -12,5 +12,5 @@ public interface Const {
     String USER_PROP_NAME = "members.properties";
     String TASK_LIST_NAME = "tasks.txt";
     Set<String> UNRESOLVED_ISSUE_STATUS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("Reopened", "Open", "In Progress")));
-
+    String ANONYMOUS_USER = "anonymous";
 }
