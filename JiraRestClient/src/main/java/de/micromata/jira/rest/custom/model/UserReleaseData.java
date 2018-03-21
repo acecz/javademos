@@ -1,7 +1,9 @@
 package de.micromata.jira.rest.custom.model;
 
+import de.micromata.jira.rest.core.Const;
 import de.micromata.jira.rest.core.jql.JqlConstants;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,14 +11,20 @@ import java.util.TreeMap;
 
 public class UserReleaseData {
     private String userName;
-    private UserReleaseEffortDist effortDist = new UserReleaseEffortDist();
-    private Map<String, List<IssueSimplePO>> priorityTaskMap = new TreeMap<>();
-    private Map<String, List<IssueSimplePO>> priorityBugMap = new TreeMap<>();
+    private double ac = 0;
+    private double ev = 0;
+    private double etc = 0;
+    private double ra = 0;
+    private LocalDate devStart;
+    private LocalDate devEnd;
+    private List<IssueSimplePO> evIssues = new ArrayList<>();
+    private List<IssueSimplePO> leftIssues = new ArrayList<>();
 
     public UserReleaseData() {
     }
 
     public UserReleaseData(String userName) {
+        System.out.println(userName);
         this.userName = userName;
     }
 
@@ -24,42 +32,62 @@ public class UserReleaseData {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public double getAc() {
+        return ac;
     }
 
-    public Map<String, List<IssueSimplePO>> getPriorityTaskMap() {
-        return priorityTaskMap;
+    public void setAc(double ac) {
+        this.ac = ac;
     }
 
-    public void setPriorityTaskMap(Map<String, List<IssueSimplePO>> priorityTaskMap) {
-        this.priorityTaskMap = priorityTaskMap;
+    public double getEv() {
+        return ev;
     }
 
-    public Map<String, List<IssueSimplePO>> getPriorityBugMap() {
-        return priorityBugMap;
+    public double getEtc() {
+        return etc;
     }
 
-    public void setPriorityBugMap(Map<String, List<IssueSimplePO>> priorityBugMap) {
-        this.priorityBugMap = priorityBugMap;
+    public List<IssueSimplePO> getEvIssues() {
+        return evIssues;
     }
 
-    public UserReleaseEffortDist getEffortDist() {
-        return effortDist;
+    public List<IssueSimplePO> getLeftIssues() {
+        return leftIssues;
     }
 
-    public void setEffortDist(UserReleaseEffortDist effortDist) {
-        this.effortDist = effortDist;
+    public double getRa() {
+        return ra;
     }
 
-    public void addIssueData(IssueSimplePO po) {
-        boolean isBug = po.getIssueType().equalsIgnoreCase(JqlConstants.ISSUETYPE_BUG);
-        effortDist.adjustEffort(isBug, po);
-        String priority = po.getPriority();
-        if (isBug) {
-            priorityBugMap.computeIfAbsent(priority, key -> new ArrayList<>()).add(po);
+    public void setRa(double ra) {
+        this.ra = ra;
+    }
+
+    public LocalDate getDevStart() {
+        return devStart;
+    }
+
+    public void setDevStart(LocalDate devStart) {
+        this.devStart = devStart;
+    }
+
+    public LocalDate getDevEnd() {
+        return devEnd;
+    }
+
+    public void setDevEnd(LocalDate devEnd) {
+        this.devEnd = devEnd;
+    }
+
+    public void addTaskIssueData(IssueSimplePO po) {
+        boolean resolved = Const.RESOLVED_ISSUE_STATUS.contains(po.getStatus());
+        if (resolved) {
+            evIssues.add(po);
+            ev += po.getEstHour();
         } else {
-            priorityTaskMap.computeIfAbsent(priority, key -> new ArrayList<>()).add(po);
+            etc += po.getEstHour();
+            leftIssues.add(po);
         }
     }
 }

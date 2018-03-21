@@ -27,16 +27,20 @@ public class ModelUtil {
         UserBean assignee = issue.getFields().getAssignee();
         if (assignee != null) {
             po.setAssignee(issue.getFields().getAssignee().getName().trim());
+        } else {
+            po.setAssignee(Const.ANONYMOUS_USER);
         }
         String dueDateStr = issue.getFields().getDuedate();
         if (dueDateStr != null) {
-            po.setDueDate(LocalDate.parse(dueDateStr, Const.YAER2MS_TZ_FMT));
+            po.setDueDate(LocalDate.parse(dueDateStr, Const.YEAR2DAY_FMT));
         }
         Optional<UserBean> owner = issue.getFields().getCustomFields().stream()
                 .filter(u -> EField.OWNER.getField().equals(u.getId())).map(u -> ((UserSelectBean) u).getUsers().get(0))
                 .findFirst();
         if (owner.isPresent()) {
             po.setOwner(owner.get().getName().trim());
+        } else {
+            po.setOwner(Const.ANONYMOUS_USER);
         }
         Integer timeEstimate = issue.getFields().getTimeoriginalestimate();
         if (timeEstimate != null) {
@@ -50,6 +54,7 @@ public class ModelUtil {
         } else {
             po.setSumEstHour(0D);
         }
+
         return po;
     }
 

@@ -58,19 +58,14 @@ public class SearchClient extends BaseClient {
         issueQb.setStartDate(now.minusDays(7));
         issueQb.setEndDate(now);
 
-        String jql = builder.addCondition(EField.PROJECT, EOperator.IN, "CNTMAT", "MATSUP")
-                // .and().addCondition(EField.STATUS, EOperator.EQUALS, STATUS_OPEN)
-                .and()
+        String jql = builder.addCondition(EField.PROJECT, EOperator.IN, "CNTMAT", "MATSUP").and()
                 .addCondition(EField.UPDATED, EOperator.GREATER_THAN_EQUALS,
                         issueQb.getStartDate().minusDays(7).format(Const.YEAR2DAY_FMT))
-                // .and()
-                // .addCondition(EField.UPDATED, EOperator.LESS_THAN_EQUALS,
-                // issueQb.getEndDate().format(Const.YEAR2DAY_FMT))
-                // .and().addCondition(EField.ISSUE_KEY, EOperator.EQUALS, "CNTMAT-5478")
                 .orderBy(SortOrder.ASC, EField.CREATED);
         jsb.setJql(jql);
         jsb.setMaxResults(1000);
-        jsb.addField(EField.ISSUE_KEY, EField.STATUS, EField.DUE, EField.ISSUE_TYPE, EField.PRIORITY, EField.WORKLOG);
+        jsb.addField(EField.ISSUE_KEY, EField.STATUS, EField.DUE, EField.ISSUE_TYPE, EField.PRIORITY, EField.WORKLOG,
+                EField.SUMMARY);
         // jsb.addExpand(EField.TRANSITIONS);
         Future<JqlSearchResult> future = restClient.getSearchClient().searchIssues(jsb);
         JqlSearchResult jqlSearchResult = future.get();
@@ -87,7 +82,7 @@ public class SearchClient extends BaseClient {
         System.out.println(issueMap);
         System.out.println(worklogs);
         ReportUtil.issueCsvReport(issueQb, issueMap);
-        ReportUtil.worklogCsvReport(issueQb, worklogs);
+        ReportUtil.worklogCsvReport(issueQb, issueMap, worklogs);
 
     }
 

@@ -12,16 +12,17 @@ import java.util.*;
 public class ReleaseData {
     private LocalDate devStart;
     private LocalDate devEnd;
+    private double ac = 0;
+    private double ev = 0;
+    private double etc = 0;
+    private double ra = 0;
     private List<IssueSimplePO> tasks;
     private List<IssueSimplePO> bugs;
+    private Map<String, UserInfo> userMap = new HashMap<>();
     private Map<String, UserReleaseData> userDataMap = new TreeMap<>();
 
     public Map<String, UserReleaseData> getUserDataMap() {
         return userDataMap;
-    }
-
-    public void setUserDataMap(Map<String, UserReleaseData> userDataMap) {
-        this.userDataMap = userDataMap;
     }
 
     public LocalDate getDevStart() {
@@ -40,16 +41,8 @@ public class ReleaseData {
         this.devEnd = devEnd;
     }
 
-    public List<IssueSimplePO> getTasks() {
-        return tasks;
-    }
-
     public void setTasks(List<IssueSimplePO> tasks) {
         this.tasks = tasks;
-    }
-
-    public List<IssueSimplePO> getBugs() {
-        return bugs;
     }
 
     public void setBugs(List<IssueSimplePO> bugs) {
@@ -58,62 +51,73 @@ public class ReleaseData {
 
     public void adjustForGantt() {
         tasks = tasks == null ? new ArrayList<>() : tasks;
-        bugs = bugs == null ? new ArrayList<>() : bugs;
         tasks.forEach(po -> {
-            adjustIssue4Gantt(po);
             String owner = po.getOwner();
-            userDataMap.computeIfAbsent(owner, key -> new UserReleaseData(key)).addIssueData(po);
-        });
-        bugs.forEach(po -> {
-            adjustIssue4Gantt(po);
-            String owner = po.getOwner();
-            userDataMap.computeIfAbsent(owner, key -> new UserReleaseData(key)).addIssueData(po);
+            userDataMap.computeIfAbsent(owner, key -> new UserReleaseData(key)).addTaskIssueData(po);
         });
         userDataMap.values().forEach(urd -> {
-            urd.getPriorityBugMap().forEach((k, v) -> v.sort(Comparator.comparing(IssueSimplePO::getNaturalStartDay)));
+            UserInfo user = calcUserVal(urd);
+            urd.setAc(user.getAc());
+            urd.setRa(user.getRa());
+            addTimeData(urd);
+            urd.setDevStart(user.getStart());
+            urd.setDevEnd(user.getEnd());
+            urd.getEvIssues().sort(Comparator.comparing(IssueSimplePO::getPriority));
+            urd.getLeftIssues().sort(Comparator.comparing(IssueSimplePO::getPriority));
         });
     }
 
-    private void adjustIssue4Gantt(IssueSimplePO po) {
-        if (po.getEstHour() == null) {
-            po.setEstHour(0D);
-        }
-        if (po.getDueDate() == null) {
-            po.setDueDate(devEnd);
-        }
-        calcNaturalStartDate(po);
+    private void addTimeData(UserReleaseData urd) {
+        ac += urd.getAc();
+        ev += urd.getEv();
+        etc += urd.getEtc();
+        ra += urd.getRa();
     }
 
-    private void calcNaturalStartDate(IssueSimplePO po) {
+    public double getAc() {
+        return ac;
+    }
+
+    public double getEv() {
+        return ev;
+    }
+
+    public double getEtc() {
+        return etc;
+    }
+
+    public double getRa() {
+        return ra;
+    }
+
+    private UserInfo calcUserVal(UserReleaseData data) {
+        UserInfo user = userMap.computeIfAbsent(data.getUserName(), k -> {
+            UserInfo ui = new UserInfo();
+            ui.setUserName(k);
+            ui.setStart(getDevStart());
+            ui.setEnd(devEnd);
+            return ui;
+        });
         try {
             Set<LocalDate> holidays = FileUtil.holidayDates();
-            Double estHrs = po.getEstHour();
-            int days = ReportUtil.hour2day(estHrs);
-            LocalDate startDay = po.getDueDate();
-            if (days > 0) {
-                startDay = po.getDueDate().minusDays(1);
-            }
-            days--;
-            for (;;) {
-                if (days <= 0) {
-                    break;
-                }
-                startDay = startDay.minusDays(1);
-                if (holidays.contains(startDay)) {
+            LocalDate now = LocalDate.now();
+            double userAc = 0;
+            double userRa = 0;
+            for (LocalDate day = user.getStart(); user.getEnd().isAfter(day); day = day.plusDays(1)) {
+                if (holidays.contains(day)) {
                     continue;
                 }
-                days--;
+                if (day.isBefore(now)) {
+                    userAc += 8;
+                } else {
+                    userRa += 8;
+                }
             }
-            po.setNaturalStartDay(startDay);
-            if (po.getAssignee() == null) {
-                po.setAssignee(Const.ANONYMOUS_USER);
-            }
-            if (po.getOwner() == null) {
-                po.setOwner(Const.ANONYMOUS_USER);
-            }
+            user.setAc(userAc);
+            user.setRa(userRa);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        return user;
     }
 }

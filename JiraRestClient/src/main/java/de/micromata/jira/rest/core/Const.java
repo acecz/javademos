@@ -11,6 +11,6 @@ public interface Const {
     DateTimeFormatter YEAR2DAY_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     String USER_PROP_NAME = "members.properties";
     String TASK_LIST_NAME = "tasks.txt";
-    Set<String> UNRESOLVED_ISSUE_STATUS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("Reopened", "Open", "In Progress")));
+    Set<String> RESOLVED_ISSUE_STATUS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("Closed", "Resolved")));
     String ANONYMOUS_USER = "anonymous";
 }

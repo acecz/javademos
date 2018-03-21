@@ -30,24 +30,24 @@ public class ReportUtil {
     public static void issueCsvReport(IssueMonitorQueryBean issueQb, Map<String, IssueSimplePO> issueMap) {
     }
 
-    public static void worklogCsvReport(IssueMonitorQueryBean issueQb, List<WorklogSimplePO> worklogs)
-            throws Exception {
+    public static void worklogCsvReport(IssueMonitorQueryBean issueQb, Map<String, IssueSimplePO> issueMap,
+            List<WorklogSimplePO> worklogs) throws Exception {
         worklogs = worklogs.stream().filter(wl -> wl.getWorkDate().isAfter(issueQb.getStartDate().minusDays(1)))
                 .collect(Collectors.toList());
-        // worklogs = worklogs.stream().filter(wl -> wl.getWorkDate().isAfter(issueQb.getStartDate().minusDays(1)))
-        // .collect(Collectors.toList());
-        originalWorklog(worklogs);
+        originalWorklog(issueMap, worklogs);
         userDayWorkLogCsv(issueQb, worklogs);
         issueDayWorkLogCsv(issueQb, worklogs);
     }
 
-    private static void originalWorklog(List<WorklogSimplePO> worklogs) {
+    private static void originalWorklog(Map<String, IssueSimplePO> issueMap, List<WorklogSimplePO> worklogs) {
         List<String> wlCsvRows = new ArrayList<>();
-        wlCsvRows.add("IssueKey,User,Day,Worklog,WorkDesc");
-        String wlRowFmt = "%s,%s,%s,%f,%s";
+        wlCsvRows.add("IssueKey,type,status,User,Day,Worklog,WorkDesc,IssueSummary");
+        String wlRowFmt = "%s,%s,%s,%s,%s,%f,%s,%s";
         worklogs.forEach(wl -> {
-            String row = String.format(wlRowFmt, wl.getIssueKey(), wl.getUserId(),
-                    wl.getWorkDate().format(Const.YEAR2DAY_FMT), wl.getTimeSpentHours(), wl.getWorkDesc());
+            IssueSimplePO issue = issueMap.get(wl.getIssueKey());
+            String row = String.format(wlRowFmt, wl.getIssueKey(), issue.getIssueType(), issue.getStatus(),
+                    wl.getUserId(), wl.getWorkDate().format(Const.YEAR2DAY_FMT), wl.getTimeSpentHours(),
+                    wl.getWorkDesc(), StringUtil.filterSpecialChar(issue.getSummary(), " "));
             wlCsvRows.add(row);
         });
         try {
@@ -261,13 +261,16 @@ public class ReportUtil {
         mdlines.add("dateFormat  YYYY-MM-DD");
         mdlines.add("title Release Issues " + data.getDevStart().format(Const.YEAR2DAY_FMT) + " ~ "
                 + data.getDevEnd().format(Const.YEAR2DAY_FMT));
+
+        mdlines.addAll(globalSection(data));
+
         UserReleaseData noneUserData = data.getUserDataMap().remove(Const.ANONYMOUS_USER);
-        data.getUserDataMap().values().forEach(ud -> {
-            mdlines.addAll(userGanttSection(ud));
-        });
         if (noneUserData != null) {
             mdlines.addAll(userGanttSection(noneUserData));
         }
+        data.getUserDataMap().values().stream().sorted(Comparator.comparing(UserReleaseData::getEtc).reversed())
+                .forEach(ud -> mdlines.addAll(userGanttSection(ud)));
+
         mdlines.add("```");
 
         try {
@@ -281,51 +284,77 @@ public class ReportUtil {
         }
     }
 
+    private static Collection<? extends String> globalSection(ReleaseData data) {
+        List<String> lines = new ArrayList<>();
+        double ac = data.getAc(), etc = data.getEtc(), ra = data.getRa(), ev = data.getEv();
+        lines.add("section Global");
+        String glbTask = String.format("global-status total=%d ac=%d ev=%d etc=%d ra=%d: crit, %s, %s",
+                hour2day(ev + etc), hour2day(ac), hour2day(ev), hour2day(etc), hour2day(ra),
+                data.getDevStart().format(Const.YEAR2DAY_FMT), data.getDevEnd().format(Const.YEAR2DAY_FMT));
+        lines.add(glbTask);
+        return lines;
+    }
+
     private static Collection<? extends String> userGanttSection(UserReleaseData ud) {
         List<String> lines = new ArrayList<>();
         lines.add("");
         lines.add("section " + ud.getUserName());
-        lines.add(buildGanttSectionTitle(ud.getUserName(), ud.getEffortDist()));
-        ud.getPriorityTaskMap().forEach((k, v) -> {
-            // lines.add(String.format("%%%% %s tasks", k));
-            lines.add("");
-            v.forEach(e -> lines.add(buildGanttTaskLine(e)));
+        lines.add(buildGanttSectionTitle(ud.getUserName(), ud));
+        ud.getEvIssues().forEach(issue -> {
+            lines.add(buildGanttResolvedTaskLine(issue));
         });
-        ud.getPriorityBugMap().forEach((k, v) -> {
-            // lines.add(String.format("%%%% %s bugs", k));
-            lines.add("");
-            v.forEach(e -> lines.add(buildGanttTaskLine(e)));
+        ud.getLeftIssues().forEach(issue -> {
+            lines.add(buildGanttUnresolvedTaskLine(issue));
         });
+        lines.add("");
         return lines;
     }
 
-    private static String buildGanttTaskLine(IssueSimplePO po) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(po.getKey()).append("[").append(po.getIssueType()).append("][").append(po.getPriority()).append("]")
-                .append(StringUtil.filterSpecialChar(po.getSummary(), " "));
-        sb.append("        :").append(issueGanttStatus(po.getStatus()))
-                .append(po.getNaturalStartDay().format(Const.YEAR2DAY_FMT)).append(",")
-                .append(po.getDueDate().format(Const.YEAR2DAY_FMT));
-        return sb.toString();
+    private static String buildGanttUnresolvedTaskLine(IssueSimplePO issue) {
+        LocalDate now = LocalDate.now();
+        boolean inProgress = issue.getStatus().toLowerCase().contains("progress");
+        if (!inProgress) {
+            now = now.plusDays(1);
+        }
+        return String.format("%s[%s][%s][%s]%s: %s %s, %s", issue.getKey(), issue.getIssueType(), issue.getPriority(),
+                issue.getStatus(), substr(StringUtil.filterSpecialChar(issue.getSummary(), " "), 50),
+                inProgress ? "active," : "", now.format(Const.YEAR2DAY_FMT),
+                now.plusDays(hour2day(issue.getEstHour())).format(Const.YEAR2DAY_FMT));
+    }
+
+    private static String buildGanttResolvedTaskLine(IssueSimplePO issue) {
+        LocalDate now = LocalDate.now();
+        return String.format("%s[%s][%s]%s: done, %s, %s", issue.getKey(), issue.getIssueType(), issue.getPriority(),
+                substr(StringUtil.filterSpecialChar(issue.getSummary(), " "), 50),
+                now.minusDays(hour2day(issue.getEstHour())).format(Const.YEAR2DAY_FMT), now.format(Const.YEAR2DAY_FMT));
+    }
+
+    private static String substr(String s, int i) {
+        if (s == null) {
+            return "";
+        }
+        if (s.length() > i) {
+            return s.substring(0, i);
+        }
+        return s;
     }
 
     private static String issueGanttStatus(String status) {
         if (status.toLowerCase().contains("in progress")) {
             return "active,";
         }
-        if (!Const.UNRESOLVED_ISSUE_STATUS.contains(status)) {
+        if (Const.RESOLVED_ISSUE_STATUS.contains(status)) {
             return "done,";
         }
         return "";
     }
 
-    private static String buildGanttSectionTitle(String userName, UserReleaseEffortDist ed) {
-        String fmt = "total=%d [task=%d bug=%d] remind=%d[task=%d bug=%d] : %dd";
-        return String.format(fmt, hour2day(ed.getTaskTotal() + ed.getBugTotal()), hour2day(ed.getTaskTotal()),
-                hour2day(ed.getBugTotal()),
-                hour2day(ed.getTaskTotal() + ed.getBugTotal() - ed.getSpentTaskTotal() - ed.getSpentBugTotal()),
-                hour2day(ed.getTaskTotal() - ed.getSpentTaskTotal()),
-                hour2day(ed.getBugTotal() - ed.getSpentBugTotal()), hour2day(ed.getTaskTotal() + ed.getBugTotal()));
+    private static String buildGanttSectionTitle(String userName, UserReleaseData ud) {
+        double ac = ud.getAc(), etc = ud.getEtc(), ra = ud.getRa(), ev = ud.getEv();
+        String glbTask = String.format(userName + "   total=%d used=%d earned=%d etc=%d rest=%d: crit,done, %s, %s",
+                hour2day(ev + etc), hour2day(ac), hour2day(ev), hour2day(etc), hour2day(ra),
+                ud.getDevStart().format(Const.YEAR2DAY_FMT), ud.getDevEnd().format(Const.YEAR2DAY_FMT));
+        return glbTask;
     }
 
     public static int hour2day(double val) {

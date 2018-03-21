@@ -135,6 +135,8 @@ public enum EField {
      * <li>environment ~ "Third floor"
      * <li>environment ~ "\"Third floor\""
      */
+    DUEDATE("duedate", EFieldType.DATE),
+
     ENVIRONMENT("environment", EFieldType.TEXT),
 
     /**
@@ -293,6 +295,7 @@ public enum EField {
      */
     RESOLUTION("resolution", EFieldType.RESOLUTION),
 
+    RESOLUTION_DATE("resolutiondate", EFieldType.DATE),
     /**
      * Issues that were resolved on, before or after a particular date (or date range).
      * <p>
