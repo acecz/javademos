@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.stream.Collectors;
 
 import de.micromata.jira.rest.core.Const;
@@ -25,6 +26,8 @@ import de.micromata.jira.rest.core.util.StringUtil;
 import de.micromata.jira.rest.custom.model.*;
 
 public class ReportUtil {
+    public static final String WORK_LOGS_FILE_PREFIX = "worklogs";
+    public static final String USER_WORKLOG_SUMMARY_FILE_PREFIX = "user-worklog-summary";
     public static final TreeSet<String> HOLIDAYS = new TreeSet<>();
 
     public static void issueCsvReport(IssueMonitorQueryBean issueQb, Map<String, IssueSimplePO> issueMap) {
@@ -51,7 +54,7 @@ public class ReportUtil {
             wlCsvRows.add(row);
         });
         try {
-            File csv = new File("worklogs.csv");
+            File csv = new File(WORK_LOGS_FILE_PREFIX + "-" + LocalDate.now().format(Const.YEAR2DAY_FMT) + ".csv");
             if (csv.exists()) {
                 csv.delete();
             }
@@ -131,19 +134,22 @@ public class ReportUtil {
                 .sorted(Comparator.comparing(Map.Entry::getKey)).forEach(e -> {
                     StringBuilder row = new StringBuilder();
                     row.append(e.getKey()).append(",");
+                    DoubleAccumulator sumValAcc = new DoubleAccumulator((a, b) -> a + b, 0);
                     userDayWlMatrix.getColumnSet().forEach(day -> {
                         Double val = e.getValue().get(day);
                         if (val == null) {
                             row.append(",");
                         } else {
+                            sumValAcc.accumulate(val);
                             row.append(val).append(",");
                         }
                     });
-                    row.deleteCharAt(row.length() - 1);
+                    row.append(sumValAcc.doubleValue());
                     csvRows.add(row.toString());
                 });
         try {
-            File csv = new File("userWorkLog.csv");
+            File csv = new File(
+                    USER_WORKLOG_SUMMARY_FILE_PREFIX + "-" + LocalDate.now().format(Const.YEAR2DAY_FMT) + ".csv");
             if (csv.exists()) {
                 csv.delete();
             }
@@ -162,6 +168,7 @@ public class ReportUtil {
         for (; startDate.isBefore(endDate); startDate = startDate.plusDays(1)) {
             dayColumnMap.add(startDate.format(Const.YEAR2DAY_FMT));
         }
+        dayColumnMap.add("SUM");
         Map<String, Map<String, Double>> rcvMap = new HashMap<>();
         worklogs.forEach(e -> {
             String userId = e.getUserId();

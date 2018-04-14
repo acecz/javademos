@@ -1,31 +1,8 @@
 package de.micromata.jira.rest.core;
 
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import de.micromata.jira.rest.JiraRestClient;
-import de.micromata.jira.rest.client.IssueClient;
-import de.micromata.jira.rest.core.domain.*;
-import de.micromata.jira.rest.core.domain.update.IssueUpdate;
-import de.micromata.jira.rest.core.misc.RestParamConstants;
-import de.micromata.jira.rest.core.misc.RestPathConstants;
-import de.micromata.jira.rest.core.util.GsonParserUtil;
-import de.micromata.jira.rest.core.util.HttpMethodFactory;
-import de.micromata.jira.rest.core.util.RestException;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -35,11 +12,44 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import de.micromata.jira.rest.JiraRestClient;
+import de.micromata.jira.rest.client.IssueClient;
+import de.micromata.jira.rest.core.domain.AttachmentBean;
+import de.micromata.jira.rest.core.domain.CommentBean;
+import de.micromata.jira.rest.core.domain.CommentsBean;
+import de.micromata.jira.rest.core.domain.ErrorBean;
+import de.micromata.jira.rest.core.domain.IssueBean;
+import de.micromata.jira.rest.core.domain.IssueResponse;
+import de.micromata.jira.rest.core.domain.TransitionBean;
+import de.micromata.jira.rest.core.domain.WorklogBean;
+import de.micromata.jira.rest.core.domain.update.IssueUpdate;
+import de.micromata.jira.rest.core.misc.RestParamConstants;
+import de.micromata.jira.rest.core.misc.RestPathConstants;
+import de.micromata.jira.rest.core.util.GsonParserUtil;
+import de.micromata.jira.rest.core.util.HttpMethodFactory;
+import de.micromata.jira.rest.core.util.RestException;
+
 /**
  * User: Christian Date: ${Date}
  */
-public class IssueClientImpl extends BaseClient implements IssueClient,
-        RestParamConstants, RestPathConstants {
+public class IssueClientImpl extends BaseClient implements IssueClient, RestParamConstants, RestPathConstants {
 
     private static final String SEPARATOR = ",";
 
@@ -71,22 +81,18 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
         });
     }
 
-
     public Future<IssueResponse> createIssue(final IssueBean issue) {
         Validate.notNull(issue);
         return executorService.submit(() -> {
 
             String json = gson.toJson(issue);
             URIBuilder uriBuilder = buildPath(ISSUE);
-            HttpPost method = HttpMethodFactory.createPostMethod(uriBuilder.build(),
-                    json);
+            HttpPost method = HttpMethodFactory.createPostMethod(uriBuilder.build(), json);
             CloseableHttpResponse response = client.execute(method, clientContext);
             int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == HttpURLConnection.HTTP_OK
-                    || statusCode == HttpURLConnection.HTTP_CREATED) {
+            if (statusCode == HttpURLConnection.HTTP_OK || statusCode == HttpURLConnection.HTTP_CREATED) {
                 JsonReader jsonReader = getJsonReader(response);
-                IssueBean issueBean = gson.fromJson(jsonReader,
-                        IssueBean.class);
+                IssueBean issueBean = gson.fromJson(jsonReader, IssueBean.class);
                 method.releaseConnection();
                 response.close();
                 return new IssueResponse(issueBean.getKey());
@@ -94,8 +100,7 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
                 HttpEntity entity = response.getEntity();
                 InputStream inputStream = entity.getContent();
                 JsonReader jsonReader = toJsonReader(inputStream);
-                ErrorBean error = gson
-                        .fromJson(jsonReader, ErrorBean.class);
+                ErrorBean error = gson.fromJson(jsonReader, ErrorBean.class);
                 method.releaseConnection();
                 response.close();
                 return new IssueResponse(error);
@@ -109,8 +114,7 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
 
     }
 
-    public Future<IssueBean> updateIssue(final String issueKey,
-                                         final IssueUpdate issueUpdate) {
+    public Future<IssueBean> updateIssue(final String issueKey, final IssueUpdate issueUpdate) {
 
         Validate.notNull(issueKey);
         Validate.notNull(issueUpdate);
@@ -135,8 +139,8 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
         });
     }
 
-    public Future<IssueBean> getIssueByKey(final String issueKey,
-                                           final List<String> fields, final List<String> expand) {
+    public Future<IssueBean> getIssueByKey(final String issueKey, final List<String> fields,
+            final List<String> expand) {
 
         return executorService.submit(() -> {
 
@@ -174,8 +178,7 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpURLConnection.HTTP_OK) {
                 JsonReader jsonReader = getJsonReader(response);
-                CommentsBean comments = gson.fromJson(jsonReader,
-                        CommentsBean.class);
+                CommentsBean comments = gson.fromJson(jsonReader, CommentsBean.class);
                 method.releaseConnection();
                 response.close();
                 return comments;
@@ -189,8 +192,8 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
     }
 
     @Override
-    public boolean addCommentToIssue(final String issueKey, final CommentBean comment) throws RestException, URISyntaxException, IOException
-    {
+    public boolean addCommentToIssue(final String issueKey, final CommentBean comment)
+            throws RestException, URISyntaxException, IOException {
         Validate.notNull(issueKey);
         Validate.notNull(comment);
 
@@ -210,6 +213,29 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
             response.close();
             throw restException;
         }
+    }
+
+    @Override
+    public void deleteAttachment(String id) {
+        Validate.notNull(id);
+        executorService.submit(() -> {
+            try {
+                URIBuilder uriBuilder = buildPath(ATTACHMENT, "/", id);
+                HttpDelete method = new HttpDelete(uriBuilder.build());
+                CloseableHttpResponse response = client.execute(method, clientContext);
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode == HttpURLConnection.HTTP_NO_CONTENT) {
+                    response.close();
+                } else {
+                    RestException restException = new RestException(response);
+                    method.releaseConnection();
+                    response.close();
+                    throw restException;
+                }
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
     }
 
     public Future<Byte[]> getAttachment(final URI uri) {
@@ -247,8 +273,7 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
             int statusCode = response.getStatusLine().getStatusCode();
             if (statusCode == HttpURLConnection.HTTP_OK) {
                 JsonReader jsonReader = getJsonReader(response);
-                AttachmentBean attachment = gson.fromJson(jsonReader,
-                        AttachmentBean.class);
+                AttachmentBean attachment = gson.fromJson(jsonReader, AttachmentBean.class);
                 method.releaseConnection();
                 response.close();
                 return attachment;
@@ -267,7 +292,7 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
         return executorService.submit(() -> {
             URIBuilder uriBuilder = buildPath(ISSUE, issuekey, ATTACHMENTS);
             HttpPost postMethod = new HttpPost(uriBuilder.build());
-            postMethod.setHeader("X-Atlassian-Token", "no-check");
+            postMethod.setHeader("X-Atlassian-Token", "nocheck");
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
             for (File file : files) {
                 FileBody fileBody = new FileBody(file, ContentType.MULTIPART_FORM_DATA);
@@ -340,8 +365,7 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
         }
     }
 
-    public Future<List<TransitionBean>> getIssueTransitionsByKey(
-            final String issueKey) {
+    public Future<List<TransitionBean>> getIssueTransitionsByKey(final String issueKey) {
 
         Validate.notNull(issueKey);
         return executorService.submit(() -> {
@@ -364,8 +388,7 @@ public class IssueClientImpl extends BaseClient implements IssueClient,
 
     private IssueBean extractIssueBean(HttpGet method, CloseableHttpResponse response) throws IOException {
         JsonReader jsonReader = getJsonReader(response);
-        final IssueBean issueBean = gson.fromJson(jsonReader,
-                IssueBean.class);
+        final IssueBean issueBean = gson.fromJson(jsonReader, IssueBean.class);
         method.releaseConnection();
         response.close();
         return issueBean;

@@ -1,9 +1,5 @@
 package de.micromata.jira.rest.client;
 
-import de.micromata.jira.rest.core.domain.*;
-import de.micromata.jira.rest.core.domain.update.IssueUpdate;
-import de.micromata.jira.rest.core.util.RestException;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +7,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.Future;
+
+import de.micromata.jira.rest.core.domain.AttachmentBean;
+import de.micromata.jira.rest.core.domain.CommentBean;
+import de.micromata.jira.rest.core.domain.CommentsBean;
+import de.micromata.jira.rest.core.domain.IssueBean;
+import de.micromata.jira.rest.core.domain.IssueResponse;
+import de.micromata.jira.rest.core.domain.TransitionBean;
+import de.micromata.jira.rest.core.domain.WorklogBean;
+import de.micromata.jira.rest.core.domain.update.IssueUpdate;
+import de.micromata.jira.rest.core.util.RestException;
 
 /**
  * The IssueClient provides all Informations for Jira Issues
@@ -131,4 +137,6 @@ public interface IssueClient {
      * @param comment = comment to add
      */
     boolean addCommentToIssue(String issueKey, CommentBean comment) throws RestException, URISyntaxException, IOException;
+
+    void deleteAttachment(String id);
 }

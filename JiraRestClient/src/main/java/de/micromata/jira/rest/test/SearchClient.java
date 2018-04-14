@@ -1,15 +1,17 @@
 package de.micromata.jira.rest.test;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
 import com.google.gson.Gson;
 
-import de.micromata.jira.rest.JiraRestClient;
 import de.micromata.jira.rest.core.Const;
 import de.micromata.jira.rest.core.domain.JqlSearchResult;
 import de.micromata.jira.rest.core.domain.ProjectBean;
@@ -26,16 +28,24 @@ import de.micromata.jira.rest.custom.util.ModelUtil;
 import de.micromata.jira.rest.custom.util.ReportUtil;
 
 public class SearchClient extends BaseClient {
-    protected static final String ISSUEKEY_TO_SEARCH = "MATSUP-1";
 
     protected static final String PROJECT_TO_SEARCH = "MATSUP";
-
-    public static JiraRestClient restClient;
 
     public static void main(String[] args) throws Exception {
         try {
             restClient = connect();
             searchIssues();
+            File worklogsCsv = new File(
+                    ReportUtil.WORK_LOGS_FILE_PREFIX + "-" + LocalDate.now().format(Const.YEAR2DAY_FMT) + ".csv");
+            File userWorklogSummaryCsv = new File(ReportUtil.USER_WORKLOG_SUMMARY_FILE_PREFIX + "-"
+                    + LocalDate.now().format(Const.YEAR2DAY_FMT) + ".csv");
+            UpdateIssueClient.updateWorkLogIssueAttachment("CNTMAT-5992", Arrays.asList(worklogsCsv, userWorklogSummaryCsv),
+                    new HashSet<String>() {
+                        {
+                            add(ReportUtil.WORK_LOGS_FILE_PREFIX);
+                            add(ReportUtil.USER_WORKLOG_SUMMARY_FILE_PREFIX);
+                        }
+                    });
         } finally {
             disConnect();
         }
@@ -55,7 +65,9 @@ public class SearchClient extends BaseClient {
         JqlBuilder builder = new JqlBuilder();
         IssueMonitorQueryBean issueQb = new IssueMonitorQueryBean();
         LocalDate now = LocalDate.now();
-        issueQb.setStartDate(now.minusDays(7));
+        // now=LocalDate.of(2018,04,01);
+        issueQb.setStartDate(now.minusDays(14));
+        // issueQb.setStartDate(LocalDate.of(2018,03,01));
         issueQb.setEndDate(now);
 
         String jql = builder.addCondition(EField.PROJECT, EOperator.IN, "CNTMAT", "MATSUP").and()

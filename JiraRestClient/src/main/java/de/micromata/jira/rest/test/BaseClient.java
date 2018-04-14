@@ -1,10 +1,5 @@
 package de.micromata.jira.rest.test;
 
-import com.google.gson.Gson;
-import de.micromata.jira.rest.JiraRestClient;
-import de.micromata.jira.rest.core.jql.JqlConstants;
-import de.micromata.jira.rest.core.misc.RestPathConstants;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -14,6 +9,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
+
+import com.google.gson.Gson;
+import de.micromata.jira.rest.JiraRestClient;
+import de.micromata.jira.rest.core.jql.JqlConstants;
+import de.micromata.jira.rest.core.misc.RestPathConstants;
 
 public class BaseClient implements JqlConstants, RestPathConstants {
     static AtomicReference<JiraRestClient> clientRef = new AtomicReference();
