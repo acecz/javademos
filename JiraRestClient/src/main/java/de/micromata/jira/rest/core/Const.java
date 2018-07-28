@@ -13,4 +13,5 @@ public interface Const {
     String TASK_LIST_NAME = "tasks.txt";
     Set<String> RESOLVED_ISSUE_STATUS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("Closed", "Resolved")));
     String ANONYMOUS_USER = "anonymous";
+    List<String> PROJECTS = Arrays.asList("CNTMAT","MATSUP");
 }

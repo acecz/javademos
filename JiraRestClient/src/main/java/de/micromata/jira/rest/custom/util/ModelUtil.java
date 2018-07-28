@@ -1,10 +1,12 @@
 package de.micromata.jira.rest.custom.util;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import de.micromata.jira.rest.core.Const;
 import de.micromata.jira.rest.core.domain.IssueBean;
+import de.micromata.jira.rest.core.domain.ResolutionBean;
 import de.micromata.jira.rest.core.domain.UserBean;
 import de.micromata.jira.rest.core.domain.WorklogItemBean;
 import de.micromata.jira.rest.core.domain.customFields.UserSelectBean;
@@ -54,7 +56,18 @@ public class ModelUtil {
         } else {
             po.setSumEstHour(0D);
         }
-
+        ResolutionBean resolution = issue.getFields().getResolution();
+        if (resolution != null) {
+            po.setResolution(resolution.getName());
+        }
+        String resolutionDate = issue.getFields().getResolutiondate();
+        if (resolutionDate != null) {
+            po.setResolutionDate(LocalDateTime.parse(resolutionDate, Const.YAER2MS_TZ_FMT).toLocalDate());
+        }
+        String createdTimeStr = issue.getFields().getCreated();
+        if (createdTimeStr != null) {
+            po.setCreatedDate(LocalDateTime.parse(createdTimeStr, Const.YAER2MS_TZ_FMT).toLocalDate());
+        }
         return po;
     }
 

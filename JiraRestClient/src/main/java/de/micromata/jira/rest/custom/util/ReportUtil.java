@@ -205,7 +205,6 @@ public class ReportUtil {
             return HOLIDAYS;
         }
         try {
-            File holidays = new File("holidays.txt");
             Set<String> set = Files.readAllLines(new File("holidays.txt").toPath()).stream()
                     .filter(s -> s != null && s.trim().length() == 10).collect(Collectors.toSet());
             HOLIDAYS.addAll(set);

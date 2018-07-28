@@ -18,6 +18,9 @@ public class IssueSimplePO {
     private Double sumEstHour;
     private LocalDate dueDate;
     private LocalDate naturalStartDay;
+    private String resolution;
+    private LocalDate resolutionDate;
+    private LocalDate createdDate;
 
     public String getKey() {
         return key;
@@ -123,8 +126,34 @@ public class IssueSimplePO {
         this.dueDate = dueDate;
     }
 
+
+
     @Override
     public String toString() {
         return JsonUtil.dbgStr(this);
+    }
+
+    public String getResolution() {
+        return resolution;
+    }
+
+    public void setResolution(String resolution) {
+        this.resolution = resolution;
+    }
+
+    public LocalDate getResolutionDate() {
+        return resolutionDate;
+    }
+
+    public void setResolutionDate(LocalDate resolutionDate) {
+        this.resolutionDate = resolutionDate;
+    }
+
+    public LocalDate getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDate createdDate) {
+        this.createdDate = createdDate;
     }
 }
