@@ -27,4 +27,12 @@ public class ErrorBean {
     public void setErrorMessages(List<String> errorMessages) {
         this.errorMessages = errorMessages;
     }
+
+    @Override
+    public String toString() {
+        return "ErrorBean{" +
+                "errorMessages=" + errorMessages +
+                ", errors=" + errors +
+                '}';
+    }
 }

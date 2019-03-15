@@ -115,4 +115,21 @@ public class ErrorsBean {
     public void setComponents(String components) {
         this.components = components;
     }
+
+    @Override
+    public String toString() {
+        return "ErrorsBean{" +
+                "project='" + project + '\'' +
+                ", subtasks='" + subtasks + '\'' +
+                ", attachment='" + attachment + '\'' +
+                ", issuelinks='" + issuelinks + '\'' +
+                ", issuetype='" + issuetype + '\'' +
+                ", reporter='" + reporter + '\'' +
+                ", assignee='" + assignee + '\'' +
+                ", environment='" + environment + '\'' +
+                ", filterName='" + filterName + '\'' +
+                ", versions='" + versions + '\'' +
+                ", components='" + components + '\'' +
+                '}';
+    }
 }
