@@ -16,9 +16,9 @@ public class ReleaseGantt extends BaseClient {
         try {
             connect();
             ReleaseData releaseData = new ReleaseData();
-            releaseData.setDevStart(LocalDate.of(2019, 01, 28));
-            releaseData.setDevEnd(LocalDate.of(2019, 02, 28));
-            List<IssueSimplePO> releaseTasks = IssueQueryUtil.releaseTasks(restClient, "\"R6.5.0\"");
+            releaseData.setDevStart(LocalDate.of(2019, 03, 25));
+            releaseData.setDevEnd(LocalDate.of(2019, 04, 30));
+            List<IssueSimplePO> releaseTasks = IssueQueryUtil.releaseTasks(restClient, "\"R6.6.0\"");
             releaseData.setTasks(releaseTasks);
             // List<IssueSimplePO> ongoingBugs = IssueQueryUtil.devOngoingBugs(restClient);
             // releaseData.setBugs(ongoingBugs);

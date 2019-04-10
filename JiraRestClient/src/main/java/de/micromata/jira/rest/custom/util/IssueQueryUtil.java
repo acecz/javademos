@@ -69,11 +69,11 @@ public class IssueQueryUtil {
         return jqlSearchResult.getIssues().stream().map(ModelUtil::simpleIssue).collect(Collectors.toList());
     }
 
-    public static List<IssueSimplePO> releaseTasks(JiraRestClient restClient, String relase) throws Exception {
+    public static List<IssueSimplePO> releaseTasks(JiraRestClient restClient, String release) throws Exception {
         JqlSearchBean jsb = new JqlSearchBean();
         JqlBuilder builder = new JqlBuilder();
         String jql = builder.addCondition(EField.PROJECT, EOperator.IN, "CNTMAT", "MATSUP").and()
-                .addCondition(EField.FIX_VERSION, EOperator.EQUALS, relase).and()
+                .addCondition(EField.FIX_VERSION, EOperator.EQUALS, release).and()
                 .addCondition(EField.ISSUE_TYPE, EOperator.NOT_EQUALS, JqlConstants.ISSUETYPE_BUG)
                 .orderBy(SortOrder.ASC, EField.PRIORITY);
         jsb.setJql(jql);
