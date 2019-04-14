@@ -21,6 +21,7 @@ public class IssueSimplePO {
     private String resolution;
     private LocalDate resolutionDate;
     private LocalDate createdDate;
+    private String parentKey;
 
     public String getKey() {
         return key;
@@ -126,7 +127,13 @@ public class IssueSimplePO {
         this.dueDate = dueDate;
     }
 
+    public String getParentKey() {
+        return parentKey;
+    }
 
+    public void setParentKey(String parentKey) {
+        this.parentKey = parentKey;
+    }
 
     @Override
     public String toString() {

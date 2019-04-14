@@ -68,6 +68,10 @@ public class ModelUtil {
         if (createdTimeStr != null) {
             po.setCreatedDate(LocalDateTime.parse(createdTimeStr, Const.YAER2MS_TZ_FMT).toLocalDate());
         }
+        IssueBean parent = issue.getFields().getParent();
+        if (parent != null) {
+            po.setParentKey(parent.getKey());
+        }
         return po;
     }
 
