@@ -366,4 +366,17 @@ public class ReportUtil {
     public static int hour2day(double val) {
         return BigDecimal.valueOf(val).divide(BigDecimal.valueOf(8), BigDecimal.ROUND_CEILING).intValue();
     }
+
+    public static LocalDate calcNatureStart(LocalDate dueDate, int duration) {
+        TreeSet<String> holidays = getHolidays();
+        LocalDate start = dueDate;
+        while (duration > 0) {
+            String startDay = start.format(Const.YEAR2DAY_FMT);
+            start = start.minusDays(1);
+            if (!holidays.contains(startDay)) {
+                duration -= 1;
+            }
+        }
+        return start.plusDays(1);
+    }
 }
