@@ -1,6 +1,11 @@
 package de.micromata.jira.rest.custom.model;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.TreeSet;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import de.micromata.jira.rest.core.util.JsonUtil;
 
@@ -16,12 +21,21 @@ public class IssueSimplePO {
     private String selfUrl;
     private Double estHour;
     private Double sumEstHour;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate dueDate;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate naturalStartDay;
     private String resolution;
+    private String parentId;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate resolutionDate;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate createdDate;
-    private String parentKey;
+    private TreeSet<IssueSimplePO> subIssues = new TreeSet<>(Comparator.comparing(IssueSimplePO::getId));
 
     public String getKey() {
         return key;
@@ -127,12 +141,12 @@ public class IssueSimplePO {
         this.dueDate = dueDate;
     }
 
-    public String getParentKey() {
-        return parentKey;
+    public String getParentId() {
+        return parentId;
     }
 
-    public void setParentKey(String parentKey) {
-        this.parentKey = parentKey;
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     @Override
@@ -162,5 +176,13 @@ public class IssueSimplePO {
 
     public void setCreatedDate(LocalDate createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public TreeSet<IssueSimplePO> getSubIssues() {
+        return subIssues;
+    }
+
+    public void addSubIssue(IssueSimplePO subIssue) {
+        this.subIssues.add(subIssue);
     }
 }

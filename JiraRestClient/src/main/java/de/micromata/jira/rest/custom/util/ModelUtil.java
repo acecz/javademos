@@ -70,7 +70,7 @@ public class ModelUtil {
         }
         IssueBean parent = issue.getFields().getParent();
         if (parent != null) {
-            po.setParentKey(parent.getKey());
+            po.setParentId(parent.getId());
         }
         return po;
     }

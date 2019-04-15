@@ -22,8 +22,8 @@ public class IssueQueryUtil {
     public static final List<String> ISSUE_QUERY_FIELDS = Arrays.asList(EField.ISSUE_KEY.getField(),
             EField.STATUS.getField(), EField.DUE.getField(), EField.ISSUE_TYPE.getField(), EField.PRIORITY.getField(),
             EField.SUMMARY.getField(), EField.ASSIGNEE.getField(), EField.TIME_ORIGINAL_ESTIMATE.getField(),
-            EField.AGGREGATE_TIME_ORIGINAL_ESTIMATE.getField(), EField.OWNER.getField(), EField.PARENT.getField(), EField.DUEDATE.getField(),
-            EField.STATUS.getField());
+            EField.AGGREGATE_TIME_ORIGINAL_ESTIMATE.getField(), EField.OWNER.getField(), EField.DUEDATE.getField(),
+            EField.STATUS.getField(), EField.PARENT.getField());
 
     public static List<IssueSimplePO> devOngoingBugs(JiraRestClient restClient) throws Exception {
         Set<String> devs = FileUtil.developers().stream().map(s -> "\"" + s + "\"").collect(Collectors.toSet());
