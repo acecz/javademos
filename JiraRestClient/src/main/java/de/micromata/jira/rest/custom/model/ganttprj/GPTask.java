@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.TreeSet;
 
 public class GPTask {
-    private static final String XML_FMT = "<task id=\"%s\" name=\"%s\" color=\"%s\" meeting=\"false\" start=\"%s\" duration=\"%s\" complete=\"0\" thirdDate=\"%s\" thirdDate-constraint=\"0\" expand=\"true\"%s>";
+    private static final String XML_FMT = "<task id=\"%s\" name=\"%s\" color=\"%s\" meeting=\"false\" start=\"%s\" duration=\"%s\" complete=\"%s\" thirdDate=\"%s\" thirdDate-constraint=\"0\" webLink=\"http://172.16.10.13/browse/%s\" expand=\"true\"%s>";
     String id;
+    String key;
     String name;
     String color;
     String meeting = "false";
@@ -129,14 +130,22 @@ public class GPTask {
         this.parentId = parentId;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     public List<String> buildGanttXmlLines() {
         List<String> lines = new ArrayList<>();
         if (subIssues.size() > 0) {
-            lines.add(String.format(XML_FMT, id, name, color, start, duration, thirdDate, ""));
+            lines.add(String.format(XML_FMT, id, name, color, start, duration, complete, thirdDate, key, ""));
             subIssues.forEach(si -> lines.addAll(si.buildGanttXmlLines()));
             lines.add("</task>");
         } else {
-            lines.add(String.format(XML_FMT, id, name, color, start, duration, thirdDate, "/"));
+            lines.add(String.format(XML_FMT, id, name, color, start, duration, complete, thirdDate, key, "/"));
         }
         return lines;
     }

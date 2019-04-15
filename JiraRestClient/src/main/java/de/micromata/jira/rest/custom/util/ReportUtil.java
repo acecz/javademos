@@ -368,6 +368,9 @@ public class ReportUtil {
     }
 
     public static LocalDate calcNatureStart(LocalDate dueDate, int duration) {
+        if (duration <= 0) {
+            return dueDate;
+        }
         TreeSet<String> holidays = getHolidays();
         LocalDate start = dueDate;
         while (duration > 0) {

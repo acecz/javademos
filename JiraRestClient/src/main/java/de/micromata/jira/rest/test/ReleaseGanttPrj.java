@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -27,28 +28,32 @@ import de.micromata.jira.rest.custom.util.ReportUtil;
 public class ReleaseGanttPrj extends BaseClient {
     static final String resource_fmt = "<resource id=\"%s\" name=\"%s\" function=\"Default:0\" contacts=\"\" phone=\"\"><rate name=\"standard\" value=\"1\"/></resource>";
     static final String allocation_fmt = " <allocation task-id=\"%s\" resource-id=\"%s\" function=\"Default:0\" responsible=\"true\" load=\"100.0\"/>";
+    static final String COLOR_RED = "#ff0000";
+    static final String COLOR_YELLOW = "#ffff00";
+    static final String COLOR_BLUE = "#0000ff";
+    static final String COLOR_GREEN = "#00ff00";
 
     static final Map<String, String> statusColorMap = new HashMap() {
         {
-            put("resolved", "#00ff00");
-            put("verified", "#00ff00");
-            put("closed", "#00ff00");
-            put("in progress", "#0000ff");
+            put("resolved", COLOR_GREEN);
+            put("verified", COLOR_GREEN);
+            put("closed", COLOR_GREEN);
+            put("in progress", COLOR_BLUE);
         }
     };
 
     public static void main(String[] args) throws Exception {
         try {
-            //connect();
+            connect();
             ReleaseData releaseData = new ReleaseData();
             releaseData.setDevStart(LocalDate.of(2019, 03, 25));
             releaseData.setDevEnd(LocalDate.of(2019, 04, 30));
-            List<IssueSimplePO> releaseTasks = releaseTasks1(restClient, "\"R6.6.0\"");
+            List<IssueSimplePO> releaseTasks = releaseTasks(restClient, "\"R6.6.0\"");
             releaseData.setTasks(releaseTasks);
             GanttPrj ganttPrj = adjustForGantt(releaseTasks);
             generateGanFile(ganttPrj);
         } finally {
-           // disConnect();
+            disConnect();
         }
         // searchProjects();
     }
@@ -74,8 +79,8 @@ public class ReleaseGanttPrj extends BaseClient {
                         .forEach(allLines::add);
             }
         }
-        Files.write(Paths.get("release" + System.currentTimeMillis() + ".gan"), allLines, StandardOpenOption.CREATE,
-                StandardOpenOption.WRITE);
+        Files.write(Paths.get("release" + LocalDateTime.now().format(Const.YAER2MS_NO_SPACE) + ".gan"), allLines,
+                StandardOpenOption.CREATE, StandardOpenOption.WRITE);
     }
 
     private static List<String> generateGanTasks(GanttPrj ganttPrj) {
@@ -89,7 +94,7 @@ public class ReleaseGanttPrj extends BaseClient {
     private static GanttPrj adjustForGantt(List<IssueSimplePO> releaseTasks) {
         GanttPrj ganttPrj = new GanttPrj();
         Set<String> members = new HashSet<>();
-        Map<String, GPTask> taskMap = new HashMap<>();
+        TreeMap<String, GPTask> taskMap = new TreeMap<>();
         Map<String, String> allocationMap = new HashMap<>();
         releaseTasks.forEach(issue -> {
             String id = issue.getId();
@@ -99,16 +104,23 @@ public class ReleaseGanttPrj extends BaseClient {
             GPTask task = convertIssue2Task(issue);
             taskMap.put(task.getId(), task);
         });
-        Set<String> subTasks = new HashSet<>();
-        taskMap.forEach((k, v) -> {
-            GPTask task = taskMap.get(v.getParentId());
-            if (task != null) {
-                task.addSubIssues(v);
-                subTasks.add(k);
-            }
-        });
-        subTasks.forEach(id -> taskMap.remove(id));
-        ganttPrj.setTasks(new ArrayList<>(taskMap.values()));
+        // Set<String> subTasks = new HashSet<>();
+        // taskMap.forEach((k, v) -> {
+        // if (v.getParentId() != null) {
+        // GPTask task = taskMap.get(v.getParentId());
+        // if (task != null) {
+        // task.addSubIssues(v);
+        // subTasks.add(k);
+        // }
+        // }
+        // });
+        List<String> warningIssues = taskMap.values().stream().filter(t -> t.getColor().equals(COLOR_RED))
+                .map(t -> t.getKey()).collect(Collectors.toList());
+        System.out.println("Warning issues:");
+        System.out.println(String.join(",", warningIssues));
+        // subTasks.forEach(id -> taskMap.remove(id));
+        ganttPrj.setTasks(
+                taskMap.values().stream().sorted(Comparator.comparing(GPTask::getKey)).collect(Collectors.toList()));
         members.forEach(s -> ganttPrj.addResources(new GPResource(Math.abs(s.hashCode()) + "", s)));
         allocationMap.forEach((k, v) -> ganttPrj.addAllocations(new GPAllocation(k, Math.abs(v.hashCode()) + "")));
         return ganttPrj;
@@ -121,22 +133,28 @@ public class ReleaseGanttPrj extends BaseClient {
             dueDate = LocalDate.now();
         }
         int estDays = ReportUtil.hour2day(issue.getEstHour());
+        // estDays = estDays < 1 ? 1 : estDays;
         String status = issue.getStatus();
         String id = issue.getId();
         task.setId(id);
+        task.setKey(issue.getKey());
         task.setParentId(issue.getParentId());
         task.setName(buildGanttUnresolvedTaskLine(issue));
-        task.setColor(calcColor(dueDate, status));
+        String color = calcColor(dueDate, status);
+        task.setColor(color);
+        if (color.equals(COLOR_GREEN)) {
+            task.setComplete(100);
+        }
         task.setStart(ReportUtil.calcNatureStart(dueDate, estDays).format(Const.YEAR2DAY_FMT));
-        task.setDuration(ReportUtil.hour2day(issue.getEstHour()) + "");
+        task.setDuration(estDays + "");
         task.setThirdDate(LocalDate.now().format(Const.YEAR2DAY_FMT));
         return task;
     }
 
     private static String calcColor(LocalDate dueDate, String status) {
-        String color = statusColorMap.getOrDefault(status.toLowerCase(), "#ffff00");
-        if (!dueDate.isAfter(LocalDate.now()) && ("#ffff00".equals(color) || "#0000ff".equals(color))) {
-            color = "#ff0000";
+        String color = statusColorMap.getOrDefault(status.toLowerCase(), COLOR_YELLOW);
+        if (!dueDate.isAfter(LocalDate.now()) && (COLOR_YELLOW.equals(color) || COLOR_BLUE.equals(color))) {
+            color = COLOR_RED;
         }
         return color;
     }
